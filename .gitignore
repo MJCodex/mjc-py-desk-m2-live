@@ -21,6 +21,8 @@ __pycache__/
 
 # Logs
 *.log
+last_screenshot.png
+detector_debug.log
 
 # Otros
 *.env
