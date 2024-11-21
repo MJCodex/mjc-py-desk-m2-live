@@ -26,16 +26,25 @@ logging.basicConfig(
 
 def main():
     try:
-        # Pedir la ruta del archivo de sonido
-        sound_path = r"D:\HostLocal\MJCodex\mjc-py-m2-live\store\alarm.mp3"
-        pattern_path = r"D:\HostLocal\MJCodex\mjc-py-m2-live\store\pattern.png"
+        # Obtener el directorio donde se ejecuta el script empaquetado
+        if getattr(sys, 'frozen', False):
+            # Si el script está empaquetado por PyInstaller
+            current_dir = sys._MEIPASS  # Carpeta temporal donde PyInstaller coloca los recursos
+        else:
+            # Si el script se está ejecutando normalmente desde el sistema de archivos
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # Crear las rutas relativas a la carpeta "store"
+        sound_path = os.path.join(current_dir, 'store', 'alarm.mp3')
+        pattern_path = os.path.join(current_dir, 'store', 'pattern.png')
+
         status_detector_utilities = StatusDetectorUtilities()
         phone_alert = AlertManager()
         
         if not os.path.exists(sound_path):
-            raise Exception(f"No se encontró el archivo de sonido en: {sound_path}")
+            raise FileNotFoundError(f"No se encontró el archivo de sonido en: {sound_path}")
         if not os.path.exists(pattern_path):
-            raise Exception(f"No se encontró el archivo de patrón en: {pattern_path}")
+            raise FileNotFoundError(f"No se encontró el archivo de patrón en: {pattern_path}")
         
         detector = StatusDetectorConfig(sound_path, pattern_path)
         
@@ -53,7 +62,7 @@ def main():
         time.sleep(3)
         x1, y1 = status_detector_utilities.get_screen_position()
         if x1 is None:
-            raise Exception("No se pudo capturar la primera posición")
+            raise ValueError("No se pudo capturar la primera posición")
         print(f"Posición 1 capturada: {x1}, {y1}")
         
         # Captura segunda posición
@@ -61,7 +70,7 @@ def main():
         time.sleep(3)
         x2, y2 = status_detector_utilities.get_screen_position()
         if x2 is None:
-            raise Exception("No se pudo capturar la segunda posición")
+            raise ValueError("No se pudo capturar la segunda posición")
         print(f"Posición 2 capturada: {x2}, {y2}")
         
         print("\n¡Monitoreo iniciado! Presiona 'q' para detener.")

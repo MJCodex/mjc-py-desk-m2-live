@@ -29,7 +29,7 @@ class StatusDetectorConfig:
 
             self.pattern = cv2.cvtColor(self.pattern_original, cv2.COLOR_BGR2GRAY)
             if self.pattern is None:
-                raise Exception("No se pudo cargar el patrón")
+                raise FileNotFoundError("No se pudo cargar el patrón")
             logging.info("Patrón cargado correctamente")
         except Exception as e:
             logging.error(f"Error al cargar el patrón: {str(e)}")

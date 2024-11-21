@@ -43,7 +43,7 @@ class StatusDetectorUtilities:
         result = cv2.matchTemplate(image_gray, pattern, cv2.TM_CCOEFF_NORMED)
         
         # Encontrar el valor máximo de coincidencia
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+        _, max_val, _, _ = cv2.minMaxLoc(result)
         
         return max_val >= threshold
 

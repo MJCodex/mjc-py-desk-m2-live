@@ -15,3 +15,6 @@ endif
 
 run:
 	$(PYTHON) detector.py
+
+buildexe:
+	pyinstaller --onefile --add-data "store;store" detector.py

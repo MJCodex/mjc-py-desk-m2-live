@@ -5,7 +5,7 @@ a = Analysis(
     ['detector.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('store', 'store')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
