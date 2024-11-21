@@ -1,0 +1,26 @@
+# Credentials
+config.json
+
+# Entornos virtuales
+venv/
+.env/
+
+# Archivos de compilación
+build/
+dist/
+*.egg-info/
+
+# Cachés de Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Archivos de configuración del IDE
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Otros
+*.env
