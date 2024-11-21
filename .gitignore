@@ -23,6 +23,7 @@ __pycache__/
 *.log
 last_screenshot.png
 detector_debug.log
+pattern.png
 
 # Otros
 *.env
