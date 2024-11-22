@@ -95,10 +95,10 @@ class AppUI:
         status_detector_utilities = StatusDetectorUtilities()
         phone_alert = AlertManager()
         detector = StatusDetectorConfig(self.sound_path, self.pattern_path)
-        start_x, start_y, end_x, end_y = self.selected_area
 
         while self.is_monitoring:
             try:
+                start_x, start_y, end_x, end_y = self.selected_area
                 screenshot_array = status_detector_utilities.get_screenshot_array(start_x, start_y, end_x, end_y)
                 is_alive_pattern = status_detector_utilities.find_partial_pattern(screenshot_array, detector.pattern)
                 self.show_image(screenshot_array)
