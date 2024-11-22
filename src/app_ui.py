@@ -10,16 +10,21 @@ import time
 from datetime import datetime
 import threading
 from PIL import Image, ImageTk
+from tkinter import scrolledtext
+from src.global_console import GlobalConsole
 
 class AppUI:
     def __init__(self, root):
         self.root = root
         self.root.title("M2 Monitor")
-        self.root.geometry("300x200")
+        self.root.geometry("400x450")
+        self.root.resizable(False, False)
+        self.root.attributes("-toolwindow", True)
 
         # Variable para controlar el monitoreo
         self.is_monitoring = False
         self.monitoring_thread = None
+        self.selected_area = None
 
         # Widgets
         self.label = tk.Label(self.root, text="Selecciona el área donde se encuentra la barra de vida")
@@ -34,6 +39,10 @@ class AppUI:
 
         self.monitor_button = tk.Button(self.root, text="Iniciar monitoreo", command=self.toggle_monitoring)
         self.monitor_button.pack(pady=10)
+
+        self.console = scrolledtext.ScrolledText(self.root, wrap=tk.WORD, height=30, width=60, state="disabled", bg="gray20", fg="white")
+        self.console.pack(side=tk.BOTTOM, fill=tk.X, pady=10, padx=10)
+        GlobalConsole.set_console(self.console)
 
         # Cargar recursos
         self.load_stored_recources()
@@ -104,11 +113,11 @@ class AppUI:
                 now_format = now.strftime("%Y-%m-%d %I:%M %p")
 
                 if is_alive_pattern:
-                    print(f"{now_format} ¡Personaje vivo! ✓")
+                    GlobalConsole.log(f"{now_format} ¡Personaje vivo! ✓")
                     detector.stop_alarm()
                 else:
                     phone_alert.send_phone_alert("METIN2", "Personaje muerto!!!")
-                    print(f"{now_format} ¡PERSONAJE MUERTO! ⚠")
+                    GlobalConsole.log(f"{now_format} ¡PERSONAJE MUERTO! ⚠")
                     detector.play_alarm()
 
                 debounce_time = 30 if is_alive_pattern else 5   
@@ -121,6 +130,10 @@ class AppUI:
         detector.stop_alarm()  # Asegurarse de que la alarma se detenga al finalizar
 
     def toggle_monitoring(self):
+        if not self.selected_area:
+            GlobalConsole.log("Selecciona el área a monitorear")
+            return
+
         if not self.is_monitoring:
             # Iniciar monitoreo
             self.is_monitoring = True
