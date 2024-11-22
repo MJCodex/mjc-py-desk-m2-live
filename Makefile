@@ -17,4 +17,4 @@ run:
 	$(PYTHON) detector.py
 
 buildexe:
-	pyinstaller --onefile --add-data "store;store" detector.py
+	pyinstaller -w --onefile --add-data "store;store" --add-data "src;src" detector.py

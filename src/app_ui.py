@@ -65,18 +65,16 @@ class AppUI:
             self.show_image(screenshot_array)
     
     def load_stored_recources(self):
-        # Obtener el directorio donde se ejecuta el script empaquetado
         if getattr(sys, 'frozen', False):
-            # Si el script está empaquetado por PyInstaller
-            current_dir = sys._MEIPASS  # Carpeta temporal donde PyInstaller coloca los recursos
+            # Usar sys._MEIPASS directamente para recursos
+            self.pattern_path = os.path.join(sys._MEIPASS, 'store', 'pattern.png')
+            self.sound_path = os.path.join(sys._MEIPASS, 'store', 'alarm.mp3')
         else:
-            # Si el script se está ejecutando normalmente desde el sistema de archivos
+            # Ruta normal para desarrollo
             current_dir = os.path.dirname(os.path.abspath(__file__))
-
-        # Crear las rutas relativas a la carpeta "store"
-        parent_dir = os.path.dirname(current_dir)
-        self.pattern_path = os.path.join(parent_dir, 'store', 'pattern.png')
-        self.sound_path = os.path.join(parent_dir, 'store', 'alarm.mp3')
+            parent_dir = os.path.dirname(current_dir)
+            self.pattern_path = os.path.join(parent_dir, 'store', 'pattern.png')
+            self.sound_path = os.path.join(parent_dir, 'store', 'alarm.mp3')
         
         if not os.path.exists(self.sound_path):
             raise FileNotFoundError(f"No se encontró el archivo de sonido en: {self.sound_path}")
