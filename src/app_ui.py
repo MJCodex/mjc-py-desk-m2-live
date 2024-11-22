@@ -9,6 +9,7 @@ import cv2
 import time
 from datetime import datetime
 import threading
+from PIL import Image, ImageTk
 
 class AppUI:
     def __init__(self, root):
@@ -27,6 +28,10 @@ class AppUI:
         self.select_button  = tk.Button(self.root, text="Seleccionar", command=self.capture_coordinates)
         self.select_button .pack(pady=10)
 
+        # Frame donde se mostrará la imagen
+        self.target_area = tk.Label(self.root, text="Área monitoreada")
+        self.target_area.pack(pady=10)
+
         self.monitor_button = tk.Button(self.root, text="Iniciar monitoreo", command=self.toggle_monitoring)
         self.monitor_button.pack(pady=10)
 
@@ -42,7 +47,13 @@ class AppUI:
 
         # Resaltar área seleccionada
         if self.selected_area:
-            capture_tool.highlight_selection(self.selected_area)
+            # capture_tool.highlight_selection(self.selected_area)
+
+            # Mostrar área monitoreada
+            start_x, start_y, end_x, end_y = self.selected_area
+            status_detector_utilities = StatusDetectorUtilities()
+            screenshot_array = status_detector_utilities.get_screenshot_array(start_x, start_y, end_x, end_y)
+            self.show_image(screenshot_array)
     
     def load_stored_recources(self):
         # Obtener el directorio donde se ejecuta el script empaquetado
@@ -62,7 +73,17 @@ class AppUI:
             raise FileNotFoundError(f"No se encontró el archivo de sonido en: {self.sound_path}")
         if not os.path.exists(self.pattern_path):
             raise FileNotFoundError(f"No se encontró el archivo de patrón en: {self.pattern_path}")
-        
+
+    def show_image(self, screenshot_array):
+        image = Image.fromarray(screenshot_array)
+
+        # Convertir a un objeto compatible con Tkinter
+        tk_image = ImageTk.PhotoImage(image)
+
+        # Mostrar la imagen en el Label
+        self.target_area.configure(image=tk_image, text="")  # Limpia el texto
+        self.target_area.image = tk_image  # Almacena una referencia para evitar que se borre
+       
     def monitoring_loop(self):
         status_detector_utilities = StatusDetectorUtilities()
         phone_alert = AlertManager()
@@ -73,6 +94,7 @@ class AppUI:
             try:
                 screenshot_array = status_detector_utilities.get_screenshot_array(start_x, start_y, end_x, end_y)
                 is_alive_pattern = status_detector_utilities.find_partial_pattern(screenshot_array, detector.pattern)
+                self.show_image(screenshot_array)
 
                 # Guardar imágenes para depuración
                 cv2.imwrite("last_screenshot.png", screenshot_array)
