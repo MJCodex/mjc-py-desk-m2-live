@@ -12,6 +12,7 @@ import threading
 from PIL import Image, ImageTk
 from tkinter import scrolledtext
 from src.global_console import GlobalConsole
+from src.pushbullet_listener import PushbulletListener
 
 class AppUI:
     def __init__(self, root):
@@ -46,6 +47,10 @@ class AppUI:
 
         # Cargar recursos
         self.load_stored_recources()
+
+        # Escuchar peticiones remotas
+        remote_listener = PushbulletListener()
+        remote_listener.start()
 
     def capture_coordinates(self):
         # Instancia de la clase
