@@ -6,6 +6,7 @@ import time
 import requests
 from src.global_console import GlobalConsole
 from src.screenshot_manager import ScreenshotManager
+from src.constants import command_actions
 
 class PushbulletListener:
     def __init__(self):
@@ -55,9 +56,8 @@ class PushbulletListener:
     def process_command(self, command):
         """Procesa un comando recibido desde Pushbullet."""
         try:
-            GlobalConsole.log(f"Procesando comando: {command}")
-            if command == "ss":
-                GlobalConsole.log("Ejecutando tomar captura pantalla")
+            if command == command_actions.take_screenshot.command:
+                GlobalConsole.log(f"Procesando comando: {command_actions.take_screenshot.command}")
                 alert_manager = ScreenshotManager()
                 alert_manager.capture_and_send()
         except Exception as e:
