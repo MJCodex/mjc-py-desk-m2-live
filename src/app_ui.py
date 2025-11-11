@@ -18,8 +18,9 @@ import base64
 from io import BytesIO
 
 class AppUI:
-    def __init__(self, root):
+    def __init__(self, root, refresh_targets_view_fn=None):
         self.root = root
+        self.refresh_targets_view_fn = refresh_targets_view_fn or self.show_target_characters
         if self.root is not None:
             self.root.title("M2 Monitor")
             self.root.geometry("400x450")
@@ -159,7 +160,7 @@ class AppUI:
                     screenshots.append(screenshot_array)
                     alive_statuses.append(is_alive_pattern)
 
-                self.show_target_characters()
+                self.refresh_targets_view_fn()
 
                 now = datetime.now()
                 now_format = now.strftime("%Y-%m-%d %I:%M %p")
