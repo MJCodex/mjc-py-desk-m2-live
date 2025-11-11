@@ -73,7 +73,7 @@ Ambos modos comparten la lógica de monitoreo y configuración de áreas, y pued
 Para crear un ejecutable standalone de la versión web, usa el siguiente comando en PowerShell:
 
 ```
-pyinstaller --onefile --add-data "src/ui;src/ui" --add-data "store;store" web_launcher.py
+pyinstaller --onefile --windowed --add-data "src/ui;src/ui" --add-data "store;store" web_launcher.py
 ```
 
 - Esto empaqueta toda la interfaz web (HTML, CSS, JS) y todos los recursos de la carpeta `store` (sonidos, imágenes, etc.).

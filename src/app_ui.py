@@ -21,6 +21,8 @@ class AppUI:
         self.refresh_targets_view_fn = refresh_targets_view_fn
 
         # Cargar recursos
+        self.detector_alive = None
+        self.detector_online = None
         self.load_stored_recources()
 
         # Variable para controlar el monitoreo
@@ -62,6 +64,9 @@ class AppUI:
             self.pattern_path = os.path.join(parent_dir, 'store', 'pattern.png')
             self.is_online_pattern = os.path.join(parent_dir, 'store', 'online_pattern.png')
             self.sound_path = os.path.join(parent_dir, 'store', 'alarm.mp3')
+
+        self.detector_alive = StatusDetectorConfig(self.sound_path, self.pattern_path)
+        self.detector_online = StatusDetectorConfig(self.sound_path, self.is_online_pattern)
         
         if not os.path.exists(self.sound_path):
             raise FileNotFoundError(f"No se encontró el archivo de sonido en: {self.sound_path}")
@@ -93,8 +98,10 @@ class AppUI:
                         self.is_online_character(character, status_detector_utilities, alarmed_characters)
 
                 self.send_all_alerts(alarmed_characters, phone_alert)
-                debounce_time = 60 if all(alarmed_characters) else 30   
-                time.sleep(debounce_time)
+                any_alarm = any(char['alarmed'] for char in alarmed_characters)
+                debounce_time = 30 if any_alarm else 60
+
+                self.wait_with_monitoring_check(debounce_time)
                     
             except Exception as e:
                 print(f"Error en el monitoreo: {e}")
@@ -103,6 +110,14 @@ class AppUI:
         # Asegurarse de que la alarma se detenga al finalizar
         sound_manager = SoundManager()
         sound_manager.stop()
+
+    def wait_with_monitoring_check(self, seconds):
+        """Espera una cantidad de segundos, verificando si debe continuar monitoreando"""
+        for _ in range(seconds):
+            if not self.is_monitoring:
+                break
+            time.sleep(1)
+
 
     def send_all_alerts(self, alarmed_characters, phone_alert):
         all_text = ''
@@ -114,9 +129,8 @@ class AppUI:
             phone_alert.send_phone_alert("METIN2", all_text)
 
     def is_online_character(self, character, status_detector_utilities, alarmed_characters):
-        detector = StatusDetectorConfig(self.sound_path, self.is_online_pattern)
         screenshot_array = status_detector_utilities.get_screenshot_array(character.start_x, character.start_y, character.end_x, character.end_y)
-        is_pattern_detected = status_detector_utilities.find_partial_pattern(screenshot_array, detector.pattern)
+        is_pattern_detected = status_detector_utilities.find_partial_pattern(screenshot_array, self.detector_online.pattern)
 
         now = datetime.now()
         now_format = now.strftime("%Y-%m-%d %I:%M %p")
@@ -132,15 +146,14 @@ class AppUI:
 
         if is_pattern_detected:
             GlobalConsole.log(f"{now_format} {message}")
-            detector.stop_alarm()
+            self.detector_online.stop_alarm()
         else:
             GlobalConsole.log(f"{now_format} {message}")
-            detector.play_alarm()
+            self.detector_online.play_alarm()
 
     def is_alive_character(self, character, status_detector_utilities, alarmed_characters):
-        detector = StatusDetectorConfig(self.sound_path, self.pattern_path)
         screenshot_array = status_detector_utilities.get_screenshot_array(character.start_x, character.start_y, character.end_x, character.end_y)
-        is_pattern_detected = status_detector_utilities.find_partial_pattern(screenshot_array, detector.pattern)
+        is_pattern_detected = status_detector_utilities.find_partial_pattern(screenshot_array, self.detector_alive.pattern)
 
         now = datetime.now()
         now_format = now.strftime("%Y-%m-%d %I:%M %p")
@@ -156,10 +169,10 @@ class AppUI:
 
         if is_pattern_detected:
             GlobalConsole.log(f"{now_format} {message}")
-            detector.stop_alarm()
+            self.detector_alive.stop_alarm()
         else:
             GlobalConsole.log(f"{now_format} {message}")
-            detector.play_alarm()
+            self.detector_alive.play_alarm()
 
     def toggle_monitoring(self):
         if not self.target_characters:
@@ -167,7 +180,11 @@ class AppUI:
             return
 
         if not self.is_monitoring:
-            # Iniciar monitoreo
+            # Iniciar monitoreo SOLO si no hay un hilo activo
+            if self.monitoring_thread and self.monitoring_thread.is_alive():
+                GlobalConsole.log("Esperando a que termine el monitoreo anterior...")
+                return
+
             self.is_monitoring = True
             self.monitoring_thread = threading.Thread(target=self.monitoring_loop)
             self.monitoring_thread.daemon = True  # El hilo se detendrá cuando se cierre la aplicación
