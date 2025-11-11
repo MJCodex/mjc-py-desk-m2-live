@@ -5,7 +5,12 @@ import tkinter as tk
 from src.screen_capture import ScreenCapture
 from src.app_ui import AppUI
 
-app_ui = AppUI(None)
+def web_refresh_targets_view():
+    if webview.windows:
+        webview.windows[0].evaluate_js("getTargets()")
+
+app_ui = AppUI(None, refresh_targets_view_fn=web_refresh_targets_view)
+
 def web_log_handler(msg):
     if webview.windows:
         webview.windows[0].evaluate_js(f"appendLog({repr(msg)})")
