@@ -33,8 +33,18 @@ async function getTargets() {
     if (window.pywebview) {
         const targets = await window.pywebview.api.get_targets();
         renderTargetList(targets);
+        showTargetTitles(targets.length);
     }
 }
+
+function showTargetTitles(count) {
+    const title = document.getElementById('target-title');
+    if (count)
+        title.innerText = `Áreas monitoreadas (${count})`;
+    else
+        title.innerText = '';
+}
+
 async function addTarget() {
     if (window.pywebview) {
         const ok = await window.pywebview.api.add_target();
