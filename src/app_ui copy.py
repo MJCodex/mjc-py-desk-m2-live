@@ -5,6 +5,7 @@ import os
 from src.status_detector_config import StatusDetectorConfig
 from src.status_detector_utilities import StatusDetectorUtilities
 from src.alert_manager import AlertManager
+import cv2
 import time
 from datetime import datetime
 import threading
@@ -14,63 +15,74 @@ from src.global_console import GlobalConsole
 from src.pushbullet_listener import PushbulletListener
 from src.target_character import TargetCharacter
 from typing import List
+import webview
+from pathlib import Path
 import base64
 from io import BytesIO
 
+class WebApi:
+    def log_message(self, msg):
+        GlobalConsole.log(f"Mensaje desde JS: {msg}")
+        return "ok"
+
+    def get_targets(self):
+        # Devuelve la lista de áreas monitoreadas con imagen en base64
+        result = []
+        for area in AppUI.web_targets:
+            start_x, start_y, end_x, end_y = area
+            img_b64 = AppUI.get_area_image_b64(area)
+            result.append({
+                'start_x': start_x,
+                'start_y': start_y,
+                'end_x': end_x,
+                'end_y': end_y,
+                'img_b64': img_b64
+            })
+        return result
+
+    def add_target(self):
+        # Lógica híbrida: abre la ventana de selección de área con Tkinter y ScreenCapture
+        # aunque la UI principal sea web
+        root = tk.Tk()
+        root.withdraw()  # Oculta la ventana principal de Tkinter
+        area = ScreenCapture(root).run()
+        root.destroy()
+        if area:
+            AppUI.web_targets.append(area)
+            return True
+        return False
+
+    def delete_target(self, idx):
+        try:
+            del AppUI.web_targets[idx]
+            return True
+        except Exception:
+            return False
+
+    def toggle_monitoring(self):
+        if not hasattr(AppUI, 'web_monitoring'):
+            AppUI.web_monitoring = False
+        AppUI.web_monitoring = not AppUI.web_monitoring
+        if not self.target_characters:
+            GlobalConsole.log("Selecciona el área a monitorear")
+            return
+
+        if not self.is_monitoring:
+            # Iniciar monitoreo
+            self.is_monitoring = True
+            self.monitor_button.config(text="Detener monitoreo")
+            self.monitoring_thread = threading.Thread(target=self.monitoring_loop)
+            self.monitoring_thread.daemon = True  # El hilo se detendrá cuando se cierre la aplicación
+            self.monitoring_thread.start()
+        else:
+            # Detener monitoreo
+            self.is_monitoring = False
+            self.monitor_button.config(text="Iniciar monitoreo")
+        return AppUI.web_monitoring
+
 class AppUI:
-    def __init__(self, root):
-        self.root = root
-        if self.root is not None:
-            self.root.title("M2 Monitor")
-            self.root.geometry("400x450")
-            self.root.resizable(False, False)
-            self.root.attributes("-toolwindow", True)
-
-            # Widgets
-            label_frame = tk.Frame(self.root)
-            label_frame.pack(pady=5)
-
-            self.label = tk.Label(label_frame, text="Selecciona el área donde se encuentra la barra de vida")
-            self.label.pack(side='left', padx=5)
-
-            self.select_button = tk.Button(label_frame, text="Agregar", command=self.add_target_character)
-            self.select_button.pack(side='left', padx=5)
-
-            # Frame donde se mostrará la imagen
-            self.setup_scrollable_frame()
-
-            self.monitor_button = tk.Button(self.root, text="Iniciar monitoreo", command=self.toggle_monitoring)
-            self.monitor_button.pack(pady=10)
-
-            self.console = scrolledtext.ScrolledText(self.root, wrap=tk.WORD, height=30, width=60, state="disabled", bg="gray20", fg="white")
-            self.console.pack(side=tk.BOTTOM, fill=tk.X, pady=10, padx=10)
-            GlobalConsole.set_console(self.console)
-
-        # Cargar recursos
-        self.load_stored_recources()
-
-        # Variable para controlar el monitoreo
-        self.is_monitoring = False
-        self.monitoring_thread = None
-        self.target_characters: List[TargetCharacter] = []
-
-        # Escuchar peticiones remotas
-        remote_listener = PushbulletListener()
-        remote_listener.start()
-
-    def add_target_character(self):
-        # Instancia de la clase
-        capture_tool = ScreenCapture(self.root)
-
-        # Capturar coordenadas
-        self.target_characters.append(capture_tool.run())
-
-        # Listar personajes monitoreados
-        self.show_target_characters()
-
-    def web_add_target_character(self, area):
-        # Agregar área directamente (usado por WebApi)
-        self.target_characters.append(area)
+    web_targets = []  # Lista global para la web
+    web_monitoring = False
 
     @staticmethod
     def get_area_image_b64(area):
@@ -85,6 +97,62 @@ class AppUI:
             return img_b64
         except Exception:
             return None
+
+    def __init__(self, root):
+        self.root = root
+        if self.root is not None:
+            self.root.title("M2 Monitor")
+            self.root.geometry("400x450")
+            self.root.resizable(False, False)
+            self.root.attributes("-toolwindow", True)
+
+        # Variable para controlar el monitoreo
+        self.is_monitoring = False
+        self.monitoring_thread = None
+        self.target_characters: List[TargetCharacter] = []
+
+        # Widgets
+        label_frame = tk.Frame(self.root)
+        label_frame.pack(pady=5)
+
+        self.label = tk.Label(label_frame, text="Selecciona el área donde se encuentra la barra de vida")
+        self.label.pack(side='left', padx=5)
+
+        self.select_button = tk.Button(label_frame, text="Agregar", command=self.add_target_character)
+        self.select_button.pack(side='left', padx=5)
+
+        # Frame donde se mostrará la imagen
+        self.setup_scrollable_frame()
+
+        self.monitor_button = tk.Button(self.root, text="Iniciar monitoreo", command=self.toggle_monitoring)
+        self.monitor_button.pack(pady=10)
+
+        self.console = scrolledtext.ScrolledText(self.root, wrap=tk.WORD, height=30, width=60, state="disabled", bg="gray20", fg="white")
+        self.console.pack(side=tk.BOTTOM, fill=tk.X, pady=10, padx=10)
+        GlobalConsole.set_console(self.console)
+
+        # Cargar recursos
+        self.load_stored_recources()
+
+        # Escuchar peticiones remotas
+        remote_listener = PushbulletListener()
+        remote_listener.start()
+
+    def add_target_character(self):
+        # Instancia de la clase
+        capture_tool = ScreenCapture(self.root)
+
+        # Capturar coordenadas
+        self.target_characters.append(capture_tool.run())
+
+        # Listar personajes monitoreados
+        self.show_target_characters()
+    
+    def add_target(self, start_x, start_y, end_x, end_y):
+        # Recibe coordenadas desde la web y las agrega como área monitoreada
+        area = (start_x, start_y, end_x, end_y)
+        AppUI.web_targets.append(area)
+        return True
 
     def load_stored_recources(self):
         if getattr(sys, 'frozen', False):
@@ -189,18 +257,14 @@ class AppUI:
         if not self.is_monitoring:
             # Iniciar monitoreo
             self.is_monitoring = True
-            self.set_monitor_button_text("Detener monitoreo")
+            self.monitor_button.config(text="Detener monitoreo")
             self.monitoring_thread = threading.Thread(target=self.monitoring_loop)
             self.monitoring_thread.daemon = True  # El hilo se detendrá cuando se cierre la aplicación
             self.monitoring_thread.start()
         else:
             # Detener monitoreo
             self.is_monitoring = False
-            self.set_monitor_button_text("Iniciar monitoreo")
-
-    def set_monitor_button_text(self, text):
-        if hasattr(self, 'monitor_button') and self.monitor_button is not None:
-            self.monitor_button.config(text=text)
+            self.monitor_button.config(text="Iniciar monitoreo")
 
     def setup_scrollable_frame(self):
         # Frame contenedor principal
@@ -230,3 +294,12 @@ class AppUI:
                 self.canvas.configure(width=self.target_frame.winfo_reqwidth())
 
         self.target_frame.bind("<Configure>", _configure_frame)
+
+def launch_web_ui():
+    """Lanza la interfaz HTML usando pywebview en una ventana nueva."""
+    html_path = Path(__file__).parent / 'ui' / 'index.html'
+    webview.create_window('M2 Monitor', html_path.resolve().as_uri(), js_api=WebApi())
+    webview.start()
+
+if __name__ == "__main__":
+    launch_web_ui()
