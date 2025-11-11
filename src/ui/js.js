@@ -17,9 +17,9 @@ function renderTargetList(targets) {
             img.className = 'target-img';
             li.appendChild(img);
         }
-        const span = document.createElement('span');
-        span.innerText = `Área: (${t.start_x},${t.start_y})-(${t.end_x},${t.end_y})`;
-        li.appendChild(span);
+        // Agregar los radio buttons
+        const optionsContainer = createTargetOptions(t, idx);
+        li.appendChild(optionsContainer);
         const del = document.createElement('button');
         del.className = 'target-delete';
         del.innerText = 'Eliminar';
@@ -28,6 +28,52 @@ function renderTargetList(targets) {
         list.appendChild(li);
     });
 }
+
+function createTargetOptions(target, index) {
+    const container = document.createElement('div');
+    container.className = 'target-options';
+
+    // Radio para "is_alive"
+    const aliveLabel = document.createElement('label');
+    const aliveRadio = document.createElement('input');
+    aliveRadio.type = 'radio';
+    aliveRadio.name = `pattern-type-${index}`; // Agrupar por target
+    aliveRadio.value = 'is_alive';
+    aliveRadio.checked = target.pattern_type === 'is_alive';
+    aliveRadio.addEventListener('change', () => {
+        onPatternTypeChange(index, 'is_alive');
+    });
+    aliveLabel.appendChild(aliveRadio);
+    aliveLabel.appendChild(document.createTextNode('Si vivo'));
+
+    // Radio para "is_online"
+    const onlineLabel = document.createElement('label');
+    const onlineRadio = document.createElement('input');
+    onlineRadio.type = 'radio';
+    onlineRadio.name = `pattern-type-${index}`;
+    onlineRadio.value = 'is_online';
+    onlineRadio.checked = target.pattern_type === 'is_online';
+    onlineRadio.addEventListener('change', () => {
+        onPatternTypeChange(index, 'is_online');
+    });
+    onlineLabel.appendChild(onlineRadio);
+    onlineLabel.appendChild(document.createTextNode('Si en línea'));
+
+    // Agregar ambos radios al contenedor
+    container.appendChild(aliveLabel);
+    container.appendChild(onlineLabel);
+
+    return container;
+}
+
+async function onPatternTypeChange(index, newType) {
+    if (window.pywebview) {
+        await window.pywebview.api.update_target_pattern(index, newType);
+    }
+}
+
+
+
 // --- Llamadas a Python ---
 async function getTargets() {
     if (window.pywebview) {

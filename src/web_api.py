@@ -48,9 +48,18 @@ class WebApi:
                 'start_y': area.start_y,
                 'end_x': area.end_x,
                 'end_y': area.end_y,
-                'img_b64': img_b64
+                'img_b64': img_b64,
+                'pattern_type': area.pattern_type
             })
         return result
+
+    def update_target_pattern(self, index, new_pattern):
+        try:
+            app_ui.target_characters[index].pattern_type = new_pattern
+            GlobalConsole.log(f"Patrón del objetivo {index} actualizado a {new_pattern}")
+            return True
+        except Exception:
+            return False
 
     def toggle_monitoring(self):
         app_ui.toggle_monitoring()
