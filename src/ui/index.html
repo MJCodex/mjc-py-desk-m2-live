@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M2 Monitor</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="container">
         <h1>M2 Monitor</h1>
         <p>Selecciona el área donde se encuentra la barra de vida</p>
-        <button id="add-btn">Agregar área</button>
-        <button id="monitor-btn">Iniciar monitoreo</button>
+        <div class="buttons-container">
+            <button id="add-btn">Agregar área</button>
+            <button id="monitor-btn">Iniciar monitoreo</button>
+        </div>
         <h3>Áreas monitoreadas</h3>
         <ul id="target-list" class="target-list"></ul>
         <h3>Consola</h3>
@@ -19,4 +23,5 @@
     </div>
     <script src="js.js"></script>
 </body>
+
 </html>

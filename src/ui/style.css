@@ -15,10 +15,10 @@ body {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin: 20px;
 }
 
 button {
-    margin-top: 20px;
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
@@ -41,6 +41,7 @@ button:hover {
     padding: 8px;
     border-radius: 6px;
     margin-top: 16px;
+    text-align: left;
 }
 
 .target-list {
@@ -56,6 +57,7 @@ button:hover {
     background: #f8f8f8;
     border-radius: 6px;
     padding: 6px 10px;
+    justify-content: space-between;
 }
 
 .target-img {
@@ -64,7 +66,6 @@ button:hover {
     object-fit: cover;
     border: 1px solid #ccc;
     border-radius: 4px;
-    margin-right: 10px;
 }
 
 .target-delete {
@@ -78,4 +79,10 @@ button:hover {
 
 .target-delete:hover {
     background: #a71d2a;
+}
+
+.buttons-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
 }
