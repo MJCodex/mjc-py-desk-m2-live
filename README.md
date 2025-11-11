@@ -67,3 +67,17 @@ python -m src.web_api
 > **Nota:** Se recomienda ejecutar el modo web con `python -m src.web_api` en lugar de `python src/web_api.py` para asegurar que los imports relativos funcionen correctamente y evitar errores de importación. El flag `-m` le indica a Python que ejecute el módulo como parte de un paquete, respetando la estructura de carpetas y permitiendo que los imports relativos funcionen como se espera.
 
 Ambos modos comparten la lógica de monitoreo y configuración de áreas, y puedes seleccionar visualmente las áreas a monitorear en ambos entornos.
+
+## Generar instalador (versión web)
+
+Para crear un ejecutable standalone de la versión web, usa el siguiente comando en PowerShell:
+
+```
+pyinstaller --onefile --add-data "src/ui;src/ui" --add-data "store;store" web_launcher.py
+```
+
+- Esto empaqueta toda la interfaz web (HTML, CSS, JS) y todos los recursos de la carpeta `store` (sonidos, imágenes, etc.).
+- El ejecutable generado (`dist/web_launcher.exe`) abrirá la interfaz web y funcionará sin dependencias externas.
+- Si agregas más recursos a la carpeta `store`, se incluirán automáticamente.
+
+> **Nota:** Si necesitas actualizar la UI o los recursos, vuelve a ejecutar el comando para regenerar el instalador.

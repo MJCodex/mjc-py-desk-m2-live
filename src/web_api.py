@@ -4,6 +4,7 @@ from pathlib import Path
 import tkinter as tk
 from src.screen_capture import ScreenCapture
 from src.app_ui import AppUI
+import sys
 
 def web_refresh_targets_view():
     if webview.windows:
@@ -48,7 +49,11 @@ class WebApi:
 
 def launch_web_ui():
     """Lanza la interfaz HTML usando pywebview en una ventana nueva."""
-    html_path = Path(__file__).parent / 'ui' / 'index.html'
+    if hasattr(sys, '_MEIPASS'):
+        # PyInstaller: usar ruta temporal
+        html_path = Path(sys._MEIPASS) / 'src' / 'ui' / 'index.html'
+    else:
+        html_path = Path(__file__).parent / 'ui' / 'index.html'
     webview.create_window('M2 Monitor', html_path.resolve().as_uri(), js_api=WebApi())
     webview.start()
 

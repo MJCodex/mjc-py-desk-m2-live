@@ -1,4 +1,4 @@
-import runpy
+from src.web_api import launch_web_ui
 
 if __name__ == "__main__":
-    runpy.run_module("src.web_api", run_name="__main__")
+    launch_web_ui()

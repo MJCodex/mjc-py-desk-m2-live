@@ -5,7 +5,7 @@ a = Analysis(
     ['web_launcher.py'],
     pathex=[],
     binaries=[],
-    datas=[('src/ui', 'src/ui')],
+    datas=[('src/ui', 'src/ui'), ('store', 'store')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
