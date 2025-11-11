@@ -81,3 +81,14 @@ pyinstaller --onefile --add-data "src/ui;src/ui" --add-data "store;store" web_la
 - Si agregas más recursos a la carpeta `store`, se incluirán automáticamente.
 
 > **Nota:** Si necesitas actualizar la UI o los recursos, vuelve a ejecutar el comando para regenerar el instalador.
+
+## Generar instalador (versión web, sin consola)
+
+Para crear un ejecutable standalone de la versión web **sin mostrar la consola**, usa el siguiente comando en PowerShell:
+
+```
+pyinstaller --onefile --windowed --add-data "src/ui;src/ui" --add-data "store;store" web_launcher.py
+```
+
+- El flag `--windowed` (o `-w`) evita que se abra una ventana de terminal/consola junto con la interfaz web.
+- El ejecutable generado (`dist/web_launcher.exe`) abrirá solo la ventana de la UI web.
