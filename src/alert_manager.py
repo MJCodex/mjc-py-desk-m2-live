@@ -6,7 +6,7 @@ class AlertManager(PushbulletBase):
     def __init__(self):
         super().__init__()
         self.last_push_notification = 0
-        self.push_notification_delay = 20
+        self.push_notification_delay = 30
     
     def should_send_push(self):
         current_time = time.time()

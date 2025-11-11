@@ -5,6 +5,7 @@ import tkinter as tk
 from src.screen_capture import ScreenCapture
 from src.app_ui import AppUI
 import sys
+from src.target_character import TargetCharacter
 
 def web_refresh_targets_view():
     if webview.windows:
@@ -25,7 +26,15 @@ class WebApi:
         area = ScreenCapture(root).run()
         root.destroy()
         if area:
-            app_ui.web_add_target_character(area)
+            start_x, start_y, end_x, end_y = area
+            target = TargetCharacter(
+                start_x = start_x,
+                start_y = start_y,
+                end_x = end_x,
+                end_y = end_y,
+                pattern_type = 'is_alive'
+            )
+            app_ui.web_add_target_character(target)
             return True
         return False
     
@@ -33,13 +42,12 @@ class WebApi:
         # Devuelve la lista de áreas monitoreadas con imagen en base64
         result = []
         for area in app_ui.target_characters:
-            start_x, start_y, end_x, end_y = area
             img_b64 = AppUI.get_area_image_b64(area)
             result.append({
-                'start_x': start_x,
-                'start_y': start_y,
-                'end_x': end_x,
-                'end_y': end_y,
+                'start_x': area.start_x,
+                'start_y': area.start_y,
+                'end_x': area.end_x,
+                'end_y': area.end_y,
                 'img_b64': img_b64
             })
         return result
