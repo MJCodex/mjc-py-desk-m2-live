@@ -47,6 +47,13 @@ class WebApi:
     def toggle_monitoring(self):
         app_ui.toggle_monitoring()
 
+    def delete_target(self, idx):
+        try:
+            app_ui.delete_target_character(idx)
+            return True
+        except Exception:
+            return False
+
 def launch_web_ui():
     """Lanza la interfaz HTML usando pywebview en una ventana nueva."""
     if hasattr(sys, '_MEIPASS'):

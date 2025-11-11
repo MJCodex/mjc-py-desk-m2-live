@@ -31,3 +31,51 @@ button {
 button:hover {
     background-color: #0056b3;
 }
+
+.log-area {
+    background: #222;
+    color: #fff;
+    font-family: monospace;
+    height: 120px;
+    overflow-y: auto;
+    padding: 8px;
+    border-radius: 6px;
+    margin-top: 16px;
+}
+
+.target-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.target-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    background: #f8f8f8;
+    border-radius: 6px;
+    padding: 6px 10px;
+}
+
+.target-img {
+    width: 80px;
+    height: 30px;
+    object-fit: cover;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+
+.target-delete {
+    background: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 10px;
+    cursor: pointer;
+}
+
+.target-delete:hover {
+    background: #a71d2a;
+}

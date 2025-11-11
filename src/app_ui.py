@@ -67,7 +67,7 @@ class AppUI:
         self.target_characters.append(capture_tool.run())
 
         # Listar personajes monitoreados
-        self.show_target_characters()
+        self.refresh_targets_view_fn()
 
     def web_add_target_character(self, area):
         # Agregar área directamente (usado por WebApi)
@@ -140,7 +140,7 @@ class AppUI:
         del self.target_characters[index]
         
         # Actualizar la vista
-        self.show_target_characters()
+        self.refresh_targets_view_fn()
 
     def monitoring_loop(self):
         status_detector_utilities = StatusDetectorUtilities()
