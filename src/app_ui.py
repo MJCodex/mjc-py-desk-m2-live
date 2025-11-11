@@ -13,7 +13,7 @@ from PIL import Image, ImageTk
 from tkinter import scrolledtext
 from src.global_console import GlobalConsole
 from src.pushbullet_listener import PushbulletListener
-from src.target_area import TargetArea
+from src.target_character import TargetCharacter
 from typing import List
 
 class AppUI:
@@ -27,7 +27,7 @@ class AppUI:
         # Variable para controlar el monitoreo
         self.is_monitoring = False
         self.monitoring_thread = None
-        self.selected_area: List[TargetArea] = []
+        self.target_characters: List[TargetCharacter] = []
 
         # Widgets
         label_frame = tk.Frame(self.root)
@@ -36,7 +36,7 @@ class AppUI:
         self.label = tk.Label(label_frame, text="Selecciona el área donde se encuentra la barra de vida")
         self.label.pack(side='left', padx=5)
 
-        self.select_button = tk.Button(label_frame, text="Agregar", command=self.capture_coordinates)
+        self.select_button = tk.Button(label_frame, text="Agregar", command=self.add_target_character)
         self.select_button.pack(side='left', padx=5)
 
         # Frame donde se mostrará la imagen
@@ -56,15 +56,15 @@ class AppUI:
         remote_listener = PushbulletListener()
         remote_listener.start()
 
-    def capture_coordinates(self):
+    def add_target_character(self):
         # Instancia de la clase
         capture_tool = ScreenCapture(self.root)
 
         # Capturar coordenadas
-        self.selected_area.append(capture_tool.run())
+        self.target_characters.append(capture_tool.run())
 
-        # Resaltar área seleccionada
-        self.show_image()
+        # Listar personajes monitoreados
+        self.show_target_characters()
     
     def load_stored_recources(self):
         if getattr(sys, 'frozen', False):
@@ -83,13 +83,13 @@ class AppUI:
         if not os.path.exists(self.pattern_path):
             raise FileNotFoundError(f"No se encontró el archivo de patrón en: {self.pattern_path}")
 
-    def show_image(self):
+    def show_target_characters(self):
         # Limpiar cualquier widget existente
         for widget in self.target_frame.winfo_children():
             widget.destroy()
 
         # Crear un frame para las imágenes capturadas
-        for i, area in enumerate(self.selected_area):
+        for i, area in enumerate(self.target_characters):
             # Subframe para cada imagen
             image_frame = tk.Frame(self.target_frame)
             image_frame.pack(fill='x', pady=5)
@@ -110,16 +110,16 @@ class AppUI:
             delete_button = tk.Button(
                 image_frame, 
                 text="Eliminar", 
-                command=lambda idx=i: self.delete_captured_area(idx)
+                command=lambda idx=i: self.delete_target_character(idx)
             )
             delete_button.pack(side='left', padx=5)
 
-    def delete_captured_area(self, index):
+    def delete_target_character(self, index):
         # Eliminar el área de la lista
-        del self.selected_area[index]
+        del self.target_characters[index]
         
         # Actualizar la vista
-        self.show_image()
+        self.show_target_characters()
 
     def monitoring_loop(self):
         status_detector_utilities = StatusDetectorUtilities()
@@ -131,7 +131,7 @@ class AppUI:
                 screenshots = []
                 alive_statuses = []
 
-                for area in self.selected_area:
+                for area in self.target_characters:
                     start_x, start_y, end_x, end_y = area
                     screenshot_array = status_detector_utilities.get_screenshot_array(start_x, start_y, end_x, end_y)
                     is_alive_pattern = status_detector_utilities.find_partial_pattern(screenshot_array, detector.pattern)
@@ -139,7 +139,7 @@ class AppUI:
                     screenshots.append(screenshot_array)
                     alive_statuses.append(is_alive_pattern)
 
-                self.show_image()
+                self.show_target_characters()
 
                 now = datetime.now()
                 now_format = now.strftime("%Y-%m-%d %I:%M %p")
@@ -162,7 +162,7 @@ class AppUI:
         detector.stop_alarm()  # Asegurarse de que la alarma se detenga al finalizar
 
     def toggle_monitoring(self):
-        if not self.selected_area:
+        if not self.target_characters:
             GlobalConsole.log("Selecciona el área a monitorear")
             return
 
