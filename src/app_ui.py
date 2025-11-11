@@ -127,6 +127,11 @@ class AppUI:
 
         if all_text:
             phone_alert.send_phone_alert("METIN2", all_text)
+            GlobalConsole.log(f"{all_text}")
+            self.detector_online.play_alarm()
+        else:
+            GlobalConsole.log("Todos los personajes ok ✓")
+            self.detector_online.stop_alarm()
 
     def is_online_character(self, character, status_detector_utilities, alarmed_characters):
         screenshot_array = status_detector_utilities.get_screenshot_array(character.start_x, character.start_y, character.end_x, character.end_y)
@@ -144,13 +149,6 @@ class AppUI:
 
         self.refresh_targets_view_fn()
 
-        if is_pattern_detected:
-            GlobalConsole.log(f"{now_format} {message}")
-            self.detector_online.stop_alarm()
-        else:
-            GlobalConsole.log(f"{now_format} {message}")
-            self.detector_online.play_alarm()
-
     def is_alive_character(self, character, status_detector_utilities, alarmed_characters):
         screenshot_array = status_detector_utilities.get_screenshot_array(character.start_x, character.start_y, character.end_x, character.end_y)
         is_pattern_detected = status_detector_utilities.find_partial_pattern(screenshot_array, self.detector_alive.pattern)
@@ -166,13 +164,6 @@ class AppUI:
         })
 
         self.refresh_targets_view_fn()
-
-        if is_pattern_detected:
-            GlobalConsole.log(f"{now_format} {message}")
-            self.detector_alive.stop_alarm()
-        else:
-            GlobalConsole.log(f"{now_format} {message}")
-            self.detector_alive.play_alarm()
 
     def toggle_monitoring(self):
         if not self.target_characters:
