@@ -60,6 +60,13 @@ class WebApi:
             return True
         except Exception:
             return False
+    def update_target_name(self, index, new_name):
+        try:
+            app_ui.target_characters[index].name = new_name
+            GlobalConsole.log(f"Nombre del objetivo {index} actualizado a {new_name}")
+            return True
+        except Exception:
+            return False
 
     def toggle_monitoring(self):
         app_ui.toggle_monitoring()

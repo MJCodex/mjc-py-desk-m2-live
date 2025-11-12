@@ -95,6 +95,12 @@ async function onPatternTypeChange(index, newType) {
     }
 }
 
+async function onTargetNameChange(index, newName) {
+    if (window.pywebview) {
+        await window.pywebview.api.update_target_name(index, newName);
+    }
+}
+
 
 
 // --- Llamadas a Python ---
