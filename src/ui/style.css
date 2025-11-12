@@ -34,10 +34,15 @@ body {
     align-items: center;
     height: 100vh;
     width: 100vw;
-    padding: 20px;
+    padding: 0;
     background-color: var(--color-bg-dark);
     color: var(--color-text);
     font-size: 1.6rem;
+    border: 1px solid var(--color-bg-panel);
+}
+
+p {
+    font-size: 1.2rem;
 }
 
 .container {
@@ -50,7 +55,6 @@ body {
     text-align: center;
     background: linear-gradient(0deg, #171717, #171717, #171717, #2c276d);
     box-shadow: 0 0 15px var(--color-shadow-main);
-    border-radius: 12px;
 }
 
 button {
@@ -204,21 +208,50 @@ button:hover {
 }
 
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+    width: 5px;
+    height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-bg-accent);
-  border-radius: 10px;
+    background: var(--color-bg-accent);
+    border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #7a1fa2, #c2185b);
-  border-radius: 10px;
-  transition: background 0.3s ease;
+    background: linear-gradient(180deg, #7a1fa2, #c2185b);
+    border-radius: 10px;
+    transition: background 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #9c27b0, #e91e63);
+    background: linear-gradient(180deg, #9c27b0, #e91e63);
+}
+
+#close-btn {
+    color: var(--color-text);
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.mjcodex {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: var(--color-text);
+    font-size: 1.2rem;
+    font-weight: bold;
+    opacity: 0.6;
+}
+
+#close-btn:hover {
+    box-shadow: none;
+}
+
+#close-btn svg path {
+    fill: currentColor;
 }

@@ -55,6 +55,7 @@ class PushbulletListener:
 
     def process_command(self, command):
         """Procesa un comando recibido desde Pushbullet."""
+        command = command.strip().lower()
         try:
             if command == command_actions.take_screenshot.command:
                 GlobalConsole.log(f"Procesando comando: {command_actions.take_screenshot.command}")

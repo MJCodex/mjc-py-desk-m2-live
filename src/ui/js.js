@@ -4,6 +4,13 @@ function appendLog(msg) {
     log.innerText += msg + '\n';
     log.scrollTop = log.scrollHeight;
 }
+
+function closeApp() {
+    if (window.pywebview) {
+        window.pywebview.api.close_app();
+    }
+}
+
 function renderTargetList(targets) {
     const list = document.getElementById('target-list');
     list.innerHTML = '';

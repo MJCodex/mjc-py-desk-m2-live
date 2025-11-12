@@ -78,6 +78,10 @@ class WebApi:
             app_ui.toggle_monitoring()
             webview.windows[0].evaluate_js("monitoringStatusChanged(false)")
 
+    def close_app(self):
+        if webview.windows:
+            webview.windows[0].destroy()
+
 def launch_web_ui():
     """Lanza la interfaz HTML usando pywebview en una ventana nueva."""
     if hasattr(sys, '_MEIPASS'):
@@ -85,7 +89,12 @@ def launch_web_ui():
         html_path = Path(sys._MEIPASS) / 'src' / 'ui' / 'index.html'
     else:
         html_path = Path(__file__).parent / 'ui' / 'index.html'
-    webview.create_window('M2 Monitor', html_path.resolve().as_uri(), js_api=WebApi())
+    webview.create_window('M2 Monitor',
+                          html_path.resolve().as_uri(),
+                          frameless=True,
+                          width=500,
+                          height=650,
+                          js_api=WebApi())
     webview.start()
 
 if __name__ == "__main__":
