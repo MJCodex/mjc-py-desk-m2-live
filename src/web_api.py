@@ -62,8 +62,10 @@ class WebApi:
             return False
     def update_target_name(self, index, new_name):
         try:
-            app_ui.target_characters[index].name = new_name
-            GlobalConsole.log(f"Nombre del objetivo {index} actualizado a {new_name}")
+            old_name = app_ui.target_characters[index].name
+            if old_name != new_name:
+                app_ui.target_characters[index].name = new_name
+                GlobalConsole.log(f"Nombre del objetivo {index} actualizado a {new_name}")
             return True
         except Exception:
             return False

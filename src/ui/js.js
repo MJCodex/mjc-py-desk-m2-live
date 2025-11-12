@@ -50,7 +50,7 @@ function createTargetOptions(target, index) {
     nameInput.name = `character-name-${index}`;
     nameInput.value = target.name || '';
     nameInput.placeholder = 'Nombre (opcional)';
-    nameInput.addEventListener('input', () => {
+    nameInput.addEventListener('blur', () => {
         onTargetNameChange(index, nameInput.value);
     });
     container.appendChild(nameInput);

@@ -139,11 +139,12 @@ class AppUI:
 
         now = datetime.now()
         now_format = now.strftime("%Y-%m-%d %I:%M %p")
-        message = "¡Personaje conectado! ✓" if is_pattern_detected else "¡PERSONAJE DESCONECTADO! ⚠"
+        message = "¡Personaje conectado! ✓" if is_pattern_detected else f"¡PERSONAJE {character.name} DESCONECTADO! ⚠"
 
         alarmed_characters.append({
             'alarmed': not is_pattern_detected,
             'message': message,
+            'name': character.name,
             'date': now_format
         })
 
@@ -155,11 +156,12 @@ class AppUI:
 
         now = datetime.now()
         now_format = now.strftime("%Y-%m-%d %I:%M %p")
-        message = "¡Personaje vivo! ✓" if is_pattern_detected else "¡PERSONAJE MUERTO! ⚠"
+        message = "¡Personaje vivo! ✓" if is_pattern_detected else f"¡PERSONAJE {character.name} MUERTO! ⚠"
 
         alarmed_characters.append({
             'alarmed': not is_pattern_detected,
             'message': message,
+            'name': character.name,
             'date': now_format
         })
 
