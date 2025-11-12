@@ -40,6 +40,21 @@ function createTargetOptions(target, index) {
     const container = document.createElement('div');
     container.className = 'target-options';
 
+    const radiosContainer = document.createElement('div');
+    radiosContainer.className = 'target-radios';
+
+    // Input para nombre (opcional)
+    const nameInput = document.createElement('input');
+    nameInput.className = 'target-name-input';
+    nameInput.type = 'text';
+    nameInput.name = `character-name-${index}`;
+    nameInput.value = target.name || '';
+    nameInput.placeholder = 'Nombre (opcional)';
+    nameInput.addEventListener('input', () => {
+        onTargetNameChange(index, nameInput.value);
+    });
+    container.appendChild(nameInput);
+
     // Radio para "is_alive"
     const aliveLabel = document.createElement('label');
     const aliveRadio = document.createElement('input');
@@ -67,8 +82,9 @@ function createTargetOptions(target, index) {
     onlineLabel.appendChild(document.createTextNode('Si en línea'));
 
     // Agregar ambos radios al contenedor
-    container.appendChild(aliveLabel);
-    container.appendChild(onlineLabel);
+    radiosContainer.appendChild(aliveLabel);
+    radiosContainer.appendChild(onlineLabel);
+    container.appendChild(radiosContainer);
 
     return container;
 }
