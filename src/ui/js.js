@@ -111,10 +111,16 @@ let monitoring = false;
 async function toggleMonitoring() {
     if (window.pywebview) {
         monitoring = !monitoring;
-        document.getElementById('monitor-btn').innerText = monitoring ? 'Detener monitoreo' : 'Iniciar monitoreo';
+        monitoringStatusChanged(monitoring);
         await window.pywebview.api.toggle_monitoring();
     }
 }
+
+function monitoringStatusChanged(isMonitoring) {
+    monitoring = isMonitoring;
+    document.getElementById('monitor-btn').innerText = monitoring ? 'Detener monitoreo' : 'Iniciar monitoreo';
+}
+
 // --- Eventos UI ---
 document.getElementById('add-btn').onclick = addTarget;
 document.getElementById('monitor-btn').onclick = toggleMonitoring;

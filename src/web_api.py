@@ -66,10 +66,17 @@ class WebApi:
 
     def delete_target(self, idx):
         try:
+            self.last_target_character_will_be_deleted()
             app_ui.delete_target_character(idx)
             return True
         except Exception:
             return False
+    
+    def last_target_character_will_be_deleted(self):
+        if len(app_ui.target_characters) == 1 and app_ui.is_monitoring and webview.windows:
+            GlobalConsole.log("No quedan áreas para monitorear. Deteniendo el monitoreo.")
+            app_ui.toggle_monitoring()
+            webview.windows[0].evaluate_js("monitoringStatusChanged(false)")
 
 def launch_web_ui():
     """Lanza la interfaz HTML usando pywebview en una ventana nueva."""
