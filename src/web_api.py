@@ -49,7 +49,8 @@ class WebApi:
                 'end_x': area.end_x,
                 'end_y': area.end_y,
                 'img_b64': img_b64,
-                'pattern_type': area.pattern_type
+                'pattern_type': area.pattern_type,
+                'name': area.name
             })
         return result
 
