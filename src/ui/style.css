@@ -80,7 +80,7 @@ button:hover {
     background: rgba(37, 29, 83, 0.5);
     color: #fff;
     font-family: monospace;
-    min-height: 250px;
+    max-height: 100%;
     height: 100%;
     overflow-y: auto;
     padding: 8px;
