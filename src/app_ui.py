@@ -185,3 +185,4 @@ class AppUI:
             self.is_monitoring = False
             sound_manager = SoundManager()
             sound_manager.stop()
+            GlobalConsole.log("Monitoreo detenido.")

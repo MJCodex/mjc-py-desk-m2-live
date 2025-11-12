@@ -86,6 +86,7 @@ button:hover {
     padding: 8px;
     border-radius: var(--radius-soft);
     text-align: left;
+    font-size: 1.2rem;
 }
 
 .buttons-container {
