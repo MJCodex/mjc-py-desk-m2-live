@@ -5,9 +5,15 @@ import numpy as np
 
 
 class ScreenCapture:
-    def __init__(self, master):
+    def __init__(self, master=None):
         """Inicializa la ventana secundaria."""
-        self.master = master
+        if master is None:
+            self.master = tk.Tk()
+            self.master.withdraw()  # Ocultar ventana raíz
+            self.owns_master = True
+        else:
+            self.master = master
+            self.owns_master = False
         self.top = tk.Toplevel(self.master)
         self.top.attributes("-fullscreen", True)  # Pantalla completa
         self.top.attributes("-topmost", True)  # Siempre visible
@@ -71,4 +77,6 @@ class ScreenCapture:
     def run(self):
         """Ejecuta la ventana secundaria para capturar la selección."""
         self.master.wait_window(self.top)  # Espera hasta que se cierre la ventana
+        if self.owns_master:
+            self.master.destroy()
         return self.selection_coordinates

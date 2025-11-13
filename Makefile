@@ -14,7 +14,7 @@ else
 endif
 
 run:
-	$(PYTHON) detector.py
+	$(PYTHON) main.py
 
 buildexe:
-	pyinstaller -w --onefile --add-data "store;store" --add-data "src;src" detector.py
+	pyinstaller --onefile --windowed --add-data "src/ui;src/ui" --add-data "store;store" main.py

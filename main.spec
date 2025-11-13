@@ -2,10 +2,10 @@
 
 
 a = Analysis(
-    ['detector.py'],
+    ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('store', 'store'), ('src', 'src')],
+    datas=[('src/ui', 'src/ui'), ('store', 'store')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='detector',
+    name='main',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
