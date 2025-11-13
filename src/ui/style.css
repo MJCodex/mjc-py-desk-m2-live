@@ -81,16 +81,24 @@ button:hover {
 }
 
 .log-area {
+   flex: 1;
+    overflow-y: auto;
     background: rgba(37, 29, 83, 0.5);
     color: #fff;
     font-family: monospace;
-    max-height: 100%;
-    height: 100%;
-    overflow-y: auto;
     padding: 8px;
     border-radius: var(--radius-soft);
     text-align: left;
     font-size: 1.2rem;
+    min-height: 0;
+}
+
+.log-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
 }
 
 .buttons-container {
@@ -301,12 +309,6 @@ button:hover {
 
 .target-name-input:hover {
     border-color: var(--color-primary);
-}
-
-.log-container {
-    position: relative;
-    max-height: 100%;
-    height: 100%;
 }
 
 #clear-log-btn {
