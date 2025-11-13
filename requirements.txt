@@ -23,7 +23,7 @@ PyRect==0.2.0
 PyScreeze==1.0.1
 python-magic==0.4.27
 pytweening==1.2.0
-pywebview
+pywebview==6.1
 pywin32-ctypes==0.2.3
 requests==2.32.3
 setuptools==75.2.0
