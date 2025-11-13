@@ -119,9 +119,10 @@ button:hover {
 }
 
 .target-img {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    object-position: center;
     border: 1px solid var(--color-primary);
     border-radius: 100%;
     background-color: var(--color-bg-panel);
@@ -181,6 +182,13 @@ button:hover {
     opacity: 0;
     transition: opacity var(--transition-fast), transform var(--transition-fast);
     transform: scale(0.5);
+}
+
+.target-radios {
+    font-size: 1.2rem;
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
 }
 
 .target-options input[type="radio"]:hover,
