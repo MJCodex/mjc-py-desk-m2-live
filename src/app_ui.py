@@ -15,7 +15,6 @@ import base64
 from io import BytesIO
 from src.status_detector_config import SoundManager
 from src.screen_capture import ScreenCapture
-import tkinter as tk
 
 class AppUI:
     def __init__(self, root, refresh_targets_view_fn=None):
@@ -131,7 +130,6 @@ class AppUI:
             if not self.is_monitoring:
                 break
             time.sleep(1)
-
 
     def send_all_alerts(self, alarmed_characters, phone_alert):
         all_text = ''
