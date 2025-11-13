@@ -14,6 +14,8 @@ from typing import List
 import base64
 from io import BytesIO
 from src.status_detector_config import SoundManager
+from src.screen_capture import ScreenCapture
+import tkinter as tk
 
 class AppUI:
     def __init__(self, root, refresh_targets_view_fn=None):
@@ -34,9 +36,21 @@ class AppUI:
         remote_listener = PushbulletListener()
         remote_listener.start()
 
-    def web_add_target_character(self, character: TargetCharacter):
-        # Agregar área directamente (usado por WebApi)
-        self.target_characters.append(character)
+    def web_add_target_character(self):
+        capture_tool = ScreenCapture()
+        area = capture_tool.run()
+        if area:
+            start_x, start_y, end_x, end_y = area
+            target = TargetCharacter(
+                start_x = start_x,
+                start_y = start_y,
+                end_x = end_x,
+                end_y = end_y,
+                pattern_type = 'is_alive'
+            )
+            self.target_characters.append(target)
+            return True
+        return False
 
     @staticmethod
     def get_area_image_b64(area):

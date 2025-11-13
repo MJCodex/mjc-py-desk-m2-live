@@ -1,11 +1,8 @@
 from src.global_console import GlobalConsole
 import webview
 from pathlib import Path
-import tkinter as tk
-from src.screen_capture import ScreenCapture
 from src.app_ui import AppUI
 import sys
-from src.target_character import TargetCharacter
 
 def web_refresh_targets_view():
     if webview.windows:
@@ -21,22 +18,8 @@ GlobalConsole.set_web_handler(web_log_handler)
 
 class WebApi:
     def add_target(self):
-        root = tk.Tk()
-        root.withdraw()  # Oculta la ventana principal de Tkinter
-        area = ScreenCapture(root).run()
-        root.destroy()
-        if area:
-            start_x, start_y, end_x, end_y = area
-            target = TargetCharacter(
-                start_x = start_x,
-                start_y = start_y,
-                end_x = end_x,
-                end_y = end_y,
-                pattern_type = 'is_alive'
-            )
-            app_ui.web_add_target_character(target)
-            return True
-        return False
+        result = app_ui.web_add_target_character()
+        return result
     
     def get_targets(self):
         # Devuelve la lista de áreas monitoreadas con imagen en base64
