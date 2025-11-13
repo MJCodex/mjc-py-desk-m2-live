@@ -1,5 +1,9 @@
 # mjc-py-desk-m2-live
 
+<div align="center">
+  <img width="485" height="612" alt="m2monitor" src="https://github.com/user-attachments/assets/85adfa29-bd58-41a6-a181-344038c2cac6" />
+</div>
+
 ### Descripción de la aplicación
 Este es un Detector de Estado de Personaje diseñado para monitorear la barra de vida de un personaje en un juego, detectar su estado (vivo o muerto) y alertar al usuario en caso de que el personaje esté muerto. La aplicación captura y procesa la pantalla para buscar un patrón específico que representa la barra de vida del personaje y, si detecta que el personaje está muerto, se emite una alerta sonora y se envía una notificación a un teléfono móvil. Además, la aplicación permite la configuración del área de captura y proporciona una interfaz simple para iniciar y detener el monitoreo.
 
