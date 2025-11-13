@@ -5,6 +5,11 @@ function appendLog(msg) {
     log.scrollTop = log.scrollHeight;
 }
 
+function clearLogs() {
+    const log = document.getElementById('log-area');
+    log.innerText = '';
+}
+
 function closeApp() {
     if (window.pywebview) {
         window.pywebview.api.close_app();
