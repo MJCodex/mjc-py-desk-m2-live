@@ -1,6 +1,5 @@
 @import url('../../style.css');
 
-
 .overlay {
   display: none;
   position: fixed;
@@ -14,11 +13,16 @@
   z-index: 99;
 }
 
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
 .modal {
-  background: white;
   padding: 20px;
   border-radius: 8px;
-  width: 400px;
+  width: 80%;
   position: relative;
   background: linear-gradient(0deg, #171717, #171717, #171717, #2c276d);
   box-shadow: 0 0 15px var(--color-shadow-main);
@@ -30,6 +34,19 @@
   right: 10px;
 }
 
-h2 {
-  margin-top: 0;
+.modal-title {
+  margin-bottom: 20px;
+  color: var(--color-text-primary);
+  text-align: left;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-field label {
+  color: var(--color-text-primary);
+  font-size: 1.2rem;
 }

@@ -15,16 +15,13 @@ class ModalDialog extends HTMLElement {
                 <path d="M28.5 9.62L26.38 7.5 18 15.88 9.62 7.5 7.5 9.62 15.88 18 7.5 26.38l2.12 2.12L18 20.12l8.38 8.38 2.12-2.12L20.12 18z"></path>
             </svg>
           </button>
-          <h2>Formulario</h2>
-          
-          <div class="form">
-            <label>Nombre:</label>
-            <input type="text" class="nombre" placeholder="Ingresa tu nombre">
-            
-            <label>Email:</label>
-            <input type="email" class="email" placeholder="Ingresa tu email">
-            
-            <button>Guardar</button>
+          <h3 class="modal-title">Configuraciones</h3>
+          <div class="modal-form">
+            <div class="form-field">
+              <label>Ntfy topic notifications</label>
+              <input type="text" id="ntfyTopic" placeholder="Nombre del tema a subscribirse">   
+            </div>         
+            <button id="saveConfig">Guardar</button>
           </div>
         </div>
       </div>
@@ -34,14 +31,9 @@ class ModalDialog extends HTMLElement {
       this.close();
     });
 
-    this.shadowRoot.querySelector('.submit').addEventListener('click', () => {
-      const nombre = this.shadowRoot.querySelector('.nombre').value;
-      const email = this.shadowRoot.querySelector('.email').value;
-      
-      console.log('Nombre:', nombre);
-      console.log('Email:', email);
-      alert(`Datos: ${nombre} - ${email}`);
-      
+    this.shadowRoot.getElementById('saveConfig').addEventListener('click', () => {
+      const ntfyTopic = this.shadowRoot.getElementById('ntfyTopic').value;
+      console.log('ntfyTopic:', ntfyTopic);
       this.close();
     });
 
