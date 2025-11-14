@@ -1,4 +1,9 @@
-// --- Utilidades de UI ---
+document.getElementById("btn-open").addEventListener("click", () => {
+    const modal = document.querySelector('modal-dialog');
+    modal.open();
+});
+
+
 function appendLog(msg) {
     const log = document.getElementById('log-area');
     log.innerText += msg + '\n';
