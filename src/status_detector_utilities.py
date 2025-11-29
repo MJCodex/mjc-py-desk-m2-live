@@ -3,7 +3,6 @@ from PIL import ImageGrab
 import numpy as np
 import traceback
 import cv2
-import pyautogui
 
 class StatusDetectorUtilities:
 
@@ -46,14 +45,3 @@ class StatusDetectorUtilities:
         _, max_val, _, _ = cv2.minMaxLoc(result)
         
         return max_val >= threshold
-
-    def get_screen_position(self):
-        # Obtiene la posición del cursor con mejor manejo de errores
-
-        try:
-            x, y = pyautogui.position()
-            logging.debug(f"Posición capturada: ({x}, {y})")
-            return x, y
-        except Exception as e:
-            logging.error(f"Error al obtener posición: {str(e)}")
-            return None, None
