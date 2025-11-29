@@ -1,4 +1,3 @@
-import cv2
 import logging
 from datetime import datetime
 from typing import Dict, Any, List
@@ -84,7 +83,8 @@ class PatternDetector:
         is_detected = self.utilities.find_partial_pattern(
             image=screenshot,
             pattern=pattern_config['pattern'],
-            threshold=pattern_config['threshold']
+            threshold=pattern_config['threshold'],
+            use_color=pattern_config.get('use_color', False)
         )
         
         # Construir resultado
@@ -92,13 +92,16 @@ class PatternDetector:
         now_format = now.strftime("%Y-%m-%d %I:%M %p")
         
         # Elegir mensaje según resultado
-        if is_detected:
+        alert_on_match = pattern_config.get('alert_on_match', False)
+        status_ok = not is_detected if alert_on_match else is_detected
+
+        if status_ok:
             message = pattern_config['message_ok']
         else:
             message = pattern_config['message_fail'].format(name=character.name)
         
         return {
-            'alarmed': not is_detected,  # Alarma si NO se detecta el patrón
+            'alarmed': not status_ok,  # Alarma cuando status NO es ok
             'message': message,
             'name': character.name,
             'date': now_format,
