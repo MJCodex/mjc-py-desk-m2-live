@@ -47,7 +47,6 @@ class ScreenCapture:
         """Guarda las coordenadas finales y cierra la ventana secundaria."""
         end_x, end_y = event.x, event.y
         self.selection_coordinates = (self.start_x, self.start_y, end_x, end_y)
-        print(f"Área seleccionada: {self.selection_coordinates}")
         self.top.destroy()  # Cierra la ventana secundaria después de la selección
 
     def highlight_selection(self, coordinates):

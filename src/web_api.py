@@ -7,7 +7,7 @@ class WebApi:
         self.app_ui = app_ui
 
     def add_target(self):
-        result = self.app_ui.web_add_target_character()
+        result = self.app_ui.web_add_target_character(pattern_types=['is_alive'])
         return result
 
     def get_targets(self):
@@ -20,15 +20,26 @@ class WebApi:
                 'end_x': area.end_x,
                 'end_y': area.end_y,
                 'img_b64': img_b64,
-                'pattern_type': area.pattern_type,
+                'pattern_types': area.pattern_types,
                 'name': area.name
             })
         return result
 
     def update_target_pattern(self, index, new_pattern):
         try:
-            self.app_ui.target_characters[index].pattern_type = new_pattern
+            self.app_ui.target_characters[index].pattern_types = [new_pattern]
             GlobalConsole.log(f"Patrón del objetivo {index} actualizado a {new_pattern}")
+            return True
+        except Exception:
+            return False
+
+    def toggle_target_pattern(self, index, pattern_type, add=True):
+        try:
+            character = self.app_ui.target_characters[index]
+            if add:
+                character.add_pattern(pattern_type)
+            else:
+                character.remove_pattern(pattern_type)
             return True
         except Exception:
             return False
@@ -53,6 +64,10 @@ class WebApi:
             return True
         except Exception:
             return False
+    
+    def get_available_patterns(self):
+        """Retorna todos los patrones disponibles del registro"""
+        return self.app_ui.get_available_patterns()
 
     def last_target_character_will_be_deleted(self):
         if len(self.app_ui.target_characters) == 1 and self.app_ui.is_monitoring and webview.windows:

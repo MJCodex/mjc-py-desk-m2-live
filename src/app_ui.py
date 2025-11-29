@@ -1,31 +1,32 @@
 import sys
 import os
-from src.status_detector_config import StatusDetectorConfig
-from src.status_detector_utilities import StatusDetectorUtilities
-from src.alert_manager import AlertManager
 import time
-from datetime import datetime
 import threading
 from PIL import Image
-from src.global_console import GlobalConsole
-from src.pushbullet_listener import PushbulletListener
-from src.target_character import TargetCharacter
 from typing import List
 import base64
 from io import BytesIO
-from src.status_detector_config import SoundManager
+
+from src.pattern_registry import PatternRegistry
+from src.pattern_detector import PatternDetector
+from src.status_detector_utilities import StatusDetectorUtilities
+from src.alert_manager import AlertManager
+from src.global_console import GlobalConsole
+from src.pushbullet_listener import PushbulletListener
+from src.target_character import TargetCharacter
+from src.sound_manager import SoundManager
 from src.screen_capture import ScreenCapture
 
 class AppUI:
     def __init__(self, root, refresh_targets_view_fn=None):
         self.root = root
         self.refresh_targets_view_fn = refresh_targets_view_fn
+        SoundManager.get_instance()
 
-        # Cargar recursos
-        self.detector_alive = None
-        self.detector_online = None
-        self.load_stored_recources()
-
+        # Inicializar sistema de patrones
+        self.pattern_registry = PatternRegistry.get_instance()
+        self.pattern_detector = PatternDetector()
+        
         # Variable para controlar el monitoreo
         self.is_monitoring = False
         self.monitoring_thread = None
@@ -34,28 +35,54 @@ class AppUI:
         # Escuchar peticiones remotas
         remote_listener = PushbulletListener()
         remote_listener.start()
+        
+        GlobalConsole.log(f"✓ Sistema iniciado. Patrones disponibles: {self.pattern_registry.get_all_pattern_types()}")
 
-    def web_add_target_character(self):
+    def web_add_target_character(self, pattern_types: List[str] = None):
+        """
+        Agrega un nuevo personaje objetivo con captura de área.
+        
+        Args:
+            pattern_types: Lista de patrones a monitorear (por defecto: ['is_alive'])
+        """
+        if pattern_types is None:
+            pattern_types = ['is_alive']  # Patrón por defecto
+        
         capture_tool = ScreenCapture()
         area = capture_tool.run()
+        
         if area:
             start_x, start_y, end_x, end_y = area
+            
+            # Validar que los patrones existen
+            for pattern_type in pattern_types:
+                if not self.pattern_registry.pattern_exists(pattern_type):
+                    GlobalConsole.log(f"⚠ Patrón desconocido: '{pattern_type}'")
+                    return False
+            
             target = TargetCharacter(
-                start_x = start_x,
-                start_y = start_y,
-                end_x = end_x,
-                end_y = end_y,
-                pattern_type = 'is_alive'
+                start_x=start_x,
+                start_y=start_y,
+                end_x=end_x,
+                end_y=end_y,
+                pattern_types=pattern_types,
+                name=f"Personaje {len(self.target_characters) + 1}"
             )
+            
             self.target_characters.append(target)
+            GlobalConsole.log(f"✓ Personaje agregado con patrones: {pattern_types}")
             return True
+        
         return False
 
     @staticmethod
     def get_area_image_b64(area):
+        """Obtiene imagen base64 del área de un personaje"""
         try:
             status_detector_utilities = StatusDetectorUtilities()
-            screenshot_array = status_detector_utilities.get_screenshot_array(area.start_x, area.start_y, area.end_x, area.end_y)
+            screenshot_array = status_detector_utilities.get_screenshot_array(
+                area.start_x, area.start_y, area.end_x, area.end_y
+            )
             image = Image.fromarray(screenshot_array)
             buffered = BytesIO()
             image.save(buffered, format="PNG")
@@ -64,139 +91,131 @@ class AppUI:
         except Exception:
             return None
 
-    def load_stored_recources(self):
-        if getattr(sys, 'frozen', False):
-            # Usar sys._MEIPASS directamente para recursos
-            self.pattern_path = os.path.join(sys._MEIPASS, 'store', 'pattern.png')
-            self.is_online_pattern = os.path.join(sys._MEIPASS, 'store', 'online_pattern.png')
-            self.sound_path = os.path.join(sys._MEIPASS, 'store', 'alarm.mp3')
-        else:
-            # Ruta normal para desarrollo
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            parent_dir = os.path.dirname(current_dir)
-            self.pattern_path = os.path.join(parent_dir, 'store', 'pattern.png')
-            self.is_online_pattern = os.path.join(parent_dir, 'store', 'online_pattern.png')
-            self.sound_path = os.path.join(parent_dir, 'store', 'alarm.mp3')
-
-        self.detector_alive = StatusDetectorConfig(self.sound_path, self.pattern_path)
-        self.detector_online = StatusDetectorConfig(self.sound_path, self.is_online_pattern)
-        
-        if not os.path.exists(self.sound_path):
-            raise FileNotFoundError(f"No se encontró el archivo de sonido en: {self.sound_path}")
-        if not os.path.exists(self.pattern_path):
-            raise FileNotFoundError(f"No se encontró el archivo de patrón en: {self.pattern_path}")
-        if not os.path.exists(self.is_online_pattern):
-            raise FileNotFoundError(f"No se encontró el archivo de patrón online en: {self.is_online_pattern}")
-
     def delete_target_character(self, index):
-        # Eliminar el área de la lista
-        del self.target_characters[index]
-        
-        # Actualizar la vista
-        self.refresh_targets_view_fn()
+        """Elimina un personaje de la lista"""
+        if 0 <= index < len(self.target_characters):
+            deleted = self.target_characters.pop(index)
+            GlobalConsole.log(f"✓ Personaje eliminado: {deleted.name}")
+            self.refresh_targets_view_fn()
+        else:
+            GlobalConsole.log(f"⚠ Índice inválido: {index}")
 
     def monitoring_loop(self):
-        status_detector_utilities = StatusDetectorUtilities()
+        """
+        Bucle principal de monitoreo.
+        Ahora es genérico y funciona con cualquier cantidad de patrones.
+        """
         phone_alert = AlertManager()
+        sound_manager = SoundManager.get_instance()
 
         while self.is_monitoring:
             try:
-                alarmed_characters = []
-
-                for character in self.target_characters:
-                    if (character.pattern_type == 'is_alive'):
-                        self.is_alive_character(character, status_detector_utilities, alarmed_characters)
-                    
-                    elif (character.pattern_type == 'is_online'):
-                        self.is_online_character(character, status_detector_utilities, alarmed_characters)
-
-                self.send_all_alerts(alarmed_characters, phone_alert)
-                any_alarm = any(char['alarmed'] for char in alarmed_characters)
+                # Detectar todos los patrones de todos los personajes
+                all_results = self.pattern_detector.detect_multiple_characters(
+                    self.target_characters
+                )
+                
+                # Enviar alertas si hay problemas
+                self._process_detection_results(all_results, phone_alert, sound_manager)
+                
+                # Determinar tiempo de espera
+                any_alarm = any(result['alarmed'] for result in all_results)
                 debounce_time = 30 if any_alarm else 60
-
+                
                 self.wait_with_monitoring_check(debounce_time)
                     
             except Exception as e:
-                print(f"Error en el monitoreo: {e}")
-                time.sleep(5)  # Esperar antes de reintentar en caso de error
+                GlobalConsole.log(f"❌ Error en el monitoreo: {e}")
+                time.sleep(5)
 
-        # Asegurarse de que la alarma se detenga al finalizar
-        sound_manager = SoundManager()
+        # Detener alarma al finalizar
         sound_manager.stop()
 
+    def _process_detection_results(self, results, phone_alert, sound_manager):
+        """
+        Procesa los resultados de detección y envía alertas si es necesario.
+        """
+        # Filtrar solo las alarmas activas
+        alarmed_results = [r for r in results if r['alarmed']]
+        
+        if alarmed_results:
+            # Construir mensaje de alerta
+            alert_text = '\n'.join([
+                f"{r['date']}: {r['message']}" 
+                for r in alarmed_results
+            ])
+            
+            # Enviar alerta telefónica
+            phone_alert.send_phone_alert("METIN2", alert_text)
+            GlobalConsole.log(f"🚨 ALERTAS:\n{alert_text}")
+            
+            # Reproducir alarma (usa el sonido del primer patrón alarmado)
+            first_pattern = alarmed_results[0]['pattern_type']
+            pattern_config = self.pattern_registry.get_pattern(first_pattern)
+            sound_manager.play(pattern_config['sound'])
+        else:
+            # Todo OK
+            GlobalConsole.log("✓ Todos los personajes OK")
+            sound_manager.stop()
+        
+        # Refrescar vista
+        if self.refresh_targets_view_fn:
+            self.refresh_targets_view_fn()
+
     def wait_with_monitoring_check(self, seconds):
-        """Espera una cantidad de segundos, verificando si debe continuar monitoreando"""
+        """Espera verificando periódicamente si debe continuar"""
         for _ in range(seconds):
             if not self.is_monitoring:
                 break
             time.sleep(1)
 
-    def send_all_alerts(self, alarmed_characters, phone_alert):
-        all_text = ''
-        for alarm_info in alarmed_characters:
-            if alarm_info['alarmed'] == True:
-                all_text += f"{alarm_info['date']}: {alarm_info['message']}\n"
-
-        if all_text:
-            phone_alert.send_phone_alert("METIN2", all_text)
-            GlobalConsole.log(f"{all_text}")
-            self.detector_online.play_alarm()
-        else:
-            GlobalConsole.log("Todos los personajes ok ✓")
-            self.detector_online.stop_alarm()
-
-    def is_online_character(self, character, status_detector_utilities, alarmed_characters):
-        screenshot_array = status_detector_utilities.get_screenshot_array(character.start_x, character.start_y, character.end_x, character.end_y)
-        is_pattern_detected = status_detector_utilities.find_partial_pattern(screenshot_array, self.detector_online.pattern)
-
-        now = datetime.now()
-        now_format = now.strftime("%Y-%m-%d %I:%M %p")
-        message = "¡Personaje conectado! ✓" if is_pattern_detected else f"¡PERSONAJE {character.name} DESCONECTADO! ⚠"
-
-        alarmed_characters.append({
-            'alarmed': not is_pattern_detected,
-            'message': message,
-            'name': character.name,
-            'date': now_format
-        })
-
-        self.refresh_targets_view_fn()
-
-    def is_alive_character(self, character, status_detector_utilities, alarmed_characters):
-        screenshot_array = status_detector_utilities.get_screenshot_array(character.start_x, character.start_y, character.end_x, character.end_y)
-        is_pattern_detected = status_detector_utilities.find_partial_pattern(screenshot_array, self.detector_alive.pattern)
-
-        now = datetime.now()
-        now_format = now.strftime("%Y-%m-%d %I:%M %p")
-        message = "¡Personaje vivo! ✓" if is_pattern_detected else f"¡PERSONAJE {character.name} MUERTO! ⚠"
-
-        alarmed_characters.append({
-            'alarmed': not is_pattern_detected,
-            'message': message,
-            'name': character.name,
-            'date': now_format
-        })
-
-        self.refresh_targets_view_fn()
-
     def toggle_monitoring(self):
+        """Inicia o detiene el monitoreo"""
         if not self.target_characters:
-            GlobalConsole.log("Selecciona el área a monitorear")
+            GlobalConsole.log("⚠ No hay personajes para monitorear")
             return
 
         if not self.is_monitoring:
-            # Iniciar monitoreo SOLO si no hay un hilo activo
+            # Iniciar monitoreo
             if self.monitoring_thread and self.monitoring_thread.is_alive():
-                GlobalConsole.log("Esperando a que termine el monitoreo anterior...")
+                GlobalConsole.log("⏳ Esperando a que termine el monitoreo anterior...")
                 return
 
             self.is_monitoring = True
             self.monitoring_thread = threading.Thread(target=self.monitoring_loop)
-            self.monitoring_thread.daemon = True  # El hilo se detendrá cuando se cierre la aplicación
+            self.monitoring_thread.daemon = True
             self.monitoring_thread.start()
+            GlobalConsole.log("▶ Monitoreo iniciado")
         else:
             # Detener monitoreo
             self.is_monitoring = False
-            sound_manager = SoundManager()
+            sound_manager = SoundManager.get_instance()
             sound_manager.stop()
-            GlobalConsole.log("Monitoreo detenido.")
+            GlobalConsole.log("⏸ Monitoreo detenido")
+    
+    # ========== MÉTODOS DE UTILIDAD ==========
+    
+    def get_available_patterns(self):
+        """Retorna lista de patrones disponibles (útil para UI)"""
+        return self.pattern_registry.get_all_pattern_types()
+    
+    def add_pattern_to_character(self, character_index: int, pattern_type: str):
+        """Agrega un patrón a un personaje existente"""
+        if 0 <= character_index < len(self.target_characters):
+            character = self.target_characters[character_index]
+            if self.pattern_registry.pattern_exists(pattern_type):
+                character.add_pattern(pattern_type)
+                GlobalConsole.log(f"✓ Patrón '{pattern_type}' agregado a {character.name}")
+                return True
+            else:
+                GlobalConsole.log(f"⚠ Patrón desconocido: '{pattern_type}'")
+        return False
+    
+    def remove_pattern_from_character(self, character_index: int, pattern_type: str):
+        """Elimina un patrón de un personaje"""
+        if 0 <= character_index < len(self.target_characters):
+            character = self.target_characters[character_index]
+            character.remove_pattern(pattern_type)
+            GlobalConsole.log(f"✓ Patrón '{pattern_type}' eliminado de {character.name}")
+            return True
+        return False

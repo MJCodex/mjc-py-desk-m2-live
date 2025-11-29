@@ -1,8 +1,16 @@
+let availablePatterns = [];
+let monitoring = false;
+
 document.getElementById("btn-open").addEventListener("click", () => {
     const modal = document.querySelector('modal-dialog');
     modal.open();
 });
 
+async function loadAvailablePatterns() {
+    if (window.pywebview) {
+        availablePatterns = await window.pywebview.api.get_available_patterns();
+    }
+}
 
 function appendLog(msg) {
     const log = document.getElementById('log-area');
@@ -65,35 +73,27 @@ function createTargetOptions(target, index) {
     });
     container.appendChild(nameInput);
 
-    // Radio para "is_alive"
-    const aliveLabel = document.createElement('label');
-    const aliveRadio = document.createElement('input');
-    aliveRadio.type = 'radio';
-    aliveRadio.name = `pattern-type-${index}`; // Agrupar por target
-    aliveRadio.value = 'is_alive';
-    aliveRadio.checked = target.pattern_type === 'is_alive';
-    aliveRadio.addEventListener('change', () => {
-        onPatternTypeChange(index, 'is_alive');
-    });
-    aliveLabel.appendChild(aliveRadio);
-    aliveLabel.appendChild(document.createTextNode('Si vivo'));
+    const currentPattern = target.pattern_types[0] || 'is_alive';
 
-    // Radio para "is_online"
-    const onlineLabel = document.createElement('label');
-    const onlineRadio = document.createElement('input');
-    onlineRadio.type = 'radio';
-    onlineRadio.name = `pattern-type-${index}`;
-    onlineRadio.value = 'is_online';
-    onlineRadio.checked = target.pattern_type === 'is_online';
-    onlineRadio.addEventListener('change', () => {
-        onPatternTypeChange(index, 'is_online');
+    // Renderizar radio buttons dinámicamente
+    availablePatterns.forEach(patternType => {
+        const label = document.createElement('label');
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = `pattern-type-${index}`;
+        radio.value = patternType;
+        radio.checked = currentPattern === patternType;
+        radio.addEventListener('change', () => {
+            onPatternTypeChange(index, patternType);
+        });
+        
+        label.appendChild(radio);
+        // Formatear nombre del patrón (is_alive -> "Si vivo")
+        label.appendChild(document.createTextNode(formatPatternName(patternType)));
+        
+        radiosContainer.appendChild(label);
     });
-    onlineLabel.appendChild(onlineRadio);
-    onlineLabel.appendChild(document.createTextNode('Si en línea'));
 
-    // Agregar ambos radios al contenedor
-    radiosContainer.appendChild(aliveLabel);
-    radiosContainer.appendChild(onlineLabel);
     container.appendChild(radiosContainer);
 
     return container;
@@ -112,8 +112,6 @@ async function onTargetNameChange(index, newName) {
 }
 
 
-
-// --- Llamadas a Python ---
 async function getTargets() {
     if (window.pywebview) {
         const targets = await window.pywebview.api.get_targets();
@@ -132,8 +130,8 @@ function showTargetTitles(count) {
 
 async function addTarget() {
     if (window.pywebview) {
-        const ok = await window.pywebview.api.add_target();
-        if (ok) {
+        const result = await window.pywebview.api.add_target();
+        if (result) {
             appendLog('Área agregada.');
             getTargets();
         }
@@ -146,7 +144,7 @@ async function deleteTarget(idx) {
         getTargets();
     }
 }
-let monitoring = false;
+
 async function toggleMonitoring() {
     if (window.pywebview) {
         monitoring = !monitoring;
@@ -167,5 +165,18 @@ document.getElementById('monitor-btn').onclick = toggleMonitoring;
 if (window.pywebview) {
     window.pywebview.onLog = appendLog;
 }
-// --- Inicialización ---
-getTargets();
+
+function formatPatternName(patternType) {
+    const names = {
+        'is_alive': 'Si vivo',
+        'is_online': 'Si en línea',
+        'has_buff': 'Con buff',
+        'in_combat': 'En combate'
+    };
+    return names[patternType] || patternType;
+}
+
+window.addEventListener('pywebviewready', async function () {
+    await loadAvailablePatterns();
+    getTargets();
+})
