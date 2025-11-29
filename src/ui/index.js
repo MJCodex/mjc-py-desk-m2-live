@@ -168,10 +168,11 @@ if (window.pywebview) {
 
 function formatPatternName(patternType) {
     const names = {
-        'is_alive': 'Si vivo',
-        'is_online': 'Si en línea',
+        'is_alive': 'Vivo',
+        'is_online': 'En línea',
         'has_buff': 'Con buff',
-        'in_combat': 'En combate'
+        'in_combat': 'En combate',
+        'is_alive_in_group': 'Vivo en grupo'
     };
     return names[patternType] || patternType;
 }

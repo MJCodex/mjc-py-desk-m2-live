@@ -33,15 +33,14 @@ class PatternRegistry:
             'threshold': 0.7,
             'priority': 2
         },
-        # AGREGAR NUEVOS PATRONES AQUÍ:
-        # 'has_buff': {
-        #     'file': 'buff_pattern.png',
-        #     'sound': 'alarm.mp3',
-        #     'message_ok': 'Buff activo ✓',
-        #     'message_fail': '¡BUFF {name} EXPIRADO! ⚠',
-        #     'threshold': 0.8,
-        #     'priority': 3
-        # },
+        'is_alive_in_group': {
+            'file': 'alive_group_pattern.png',
+            'sound': 'alarm.mp3',
+            'message_ok': '¡Personaje ok! ✓',
+            'message_fail': '¡PERSONAJE {name} MUERTO O DESCONECTADO! ⚠',
+            'threshold': 0.7,
+            'priority': 2
+        }
     }
     
     def __new__(cls):
