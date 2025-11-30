@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 from typing import Dict, Any, List
 from src.pattern_registry import PatternRegistry
@@ -30,7 +29,6 @@ class PatternDetector:
         # Capturar screenshot una sola vez para todos los patrones
         screenshot = self._capture_character_area(character)
         if screenshot is None:
-            logging.error(f"No se pudo capturar el área del personaje {character.name}")
             return results
         
         # Evaluar cada patrón del personaje
@@ -44,7 +42,6 @@ class PatternDetector:
                 results.append(result)
                 
             except Exception as e:
-                logging.error(f"Error detectando patrón '{pattern_type}' en {character.name}: {e}")
                 # Agregar resultado de error
                 results.append(self._create_error_result(character, pattern_type, str(e)))
         
@@ -61,7 +58,6 @@ class PatternDetector:
             )
             return screenshot_array
         except Exception as e:
-            logging.error(f"Error capturando área: {e}")
             return None
     
     def _detect_single_pattern(
@@ -70,45 +66,80 @@ class PatternDetector:
         pattern_type: str,
         screenshot
     ) -> Dict[str, Any]:
-        """
-        Detecta un patrón específico en un screenshot.
-        
-        Returns:
-            Dict con: alarmed, message, name, date, pattern_type
-        """
-        # Obtener configuración del patrón
-        pattern_config = self.pattern_registry.get_pattern(pattern_type)
-        
-        # Realizar detección
-        is_detected = self.utilities.find_partial_pattern(
-            image=screenshot,
-            pattern=pattern_config['pattern'],
-            threshold=pattern_config['threshold'],
-            use_color=pattern_config.get('use_color', False)
-        )
-        
-        # Construir resultado
-        now = datetime.now()
-        now_format = now.strftime("%Y-%m-%d %I:%M %p")
-        
-        # Elegir mensaje según resultado
-        alert_on_match = pattern_config.get('alert_on_match', False)
-        status_ok = not is_detected if alert_on_match else is_detected
 
-        if status_ok:
-            message = pattern_config['message_ok']
+        pattern_config = self.pattern_registry.get_pattern(pattern_type)
+
+        # Elegir si contamos coincidencias
+        count_matches = pattern_config.get("count_matches", False)
+        expected_count = pattern_config.get("expected_count", None)
+
+        # Ejecutar detección usando la nueva API
+        detection_result = self.utilities.find_partial_pattern(
+            image=screenshot,
+            pattern=pattern_config["pattern"],
+            threshold=pattern_config["threshold"],
+            use_color=pattern_config.get("use_color", False),
+            count_matches=count_matches
+        )
+
+        # -------------------------------------------------------------
+        # 1. Interpretar resultado según si es booleano o entero
+        # -------------------------------------------------------------
+        if count_matches:
+            detected_count = detection_result
+
+            # Si se espera N elementos y hay menos → estado incorrecto
+            status_ok = True
+            if expected_count is not None:
+                status_ok = detected_count >= expected_count
+
         else:
-            message = pattern_config['message_fail'].format(name=character.name)
-        
+            is_detected = bool(detection_result)
+
+            # alert_on_match invierte la lógica
+            alert_on_match = pattern_config.get("alert_on_match", False)
+
+            status_ok = not is_detected if alert_on_match else is_detected
+
+        # -------------------------------------------------------------
+        # 2. Preparar mensajes dinámicos
+        # -------------------------------------------------------------
+        if count_matches:
+            # Para patrones como is_online_in_group
+            count_matches = 0
+            if expected_count is not None:
+                count_matches = max(0, expected_count - detected_count)
+
+            if status_ok:
+                message = pattern_config["message_ok"]
+            else:
+                message = pattern_config["message_fail"].format(
+                    name=character.name,
+                    count_matches=count_matches
+                )
+        else:
+            # Patrones simples (is_alive, is_online)
+            if status_ok:
+                message = pattern_config["message_ok"]
+            else:
+                message = pattern_config["message_fail"].format(
+                    name=character.name
+                )
+
+        # -------------------------------------------------------------
+        # 3. Construir retorno
+        # -------------------------------------------------------------
+        now = datetime.now().strftime("%Y-%m-%d %I:%M %p")
+
         return {
-            'alarmed': not status_ok,  # Alarma cuando status NO es ok
-            'message': message,
-            'name': character.name,
-            'date': now_format,
-            'pattern_type': pattern_type,
-            'detected': is_detected
+            "alarmed": not status_ok,
+            "message": message,
+            "name": character.name,
+            "date": now,
+            "pattern_type": pattern_type,
+            "detected": detection_result
         }
-    
+
     def _create_error_result(
         self,
         character: TargetCharacter,

@@ -22,7 +22,6 @@ class SoundManager:
                 mixer.init()
                 self.current_sound = None
                 SoundManager._initialized = True
-                logging.info("Sistema de sonido inicializado correctamente")
             except Exception as e:
                 logging.error(f"Error al inicializar el sonido: {str(e)}")
                 print("Error al inicializar el sistema de audio.")

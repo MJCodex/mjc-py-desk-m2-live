@@ -37,11 +37,22 @@ class PatternRegistry:
             'file': 'death_group_pattern.png',
             'sound': 'alarm.mp3',
             'message_ok': '¡Personaje ok! ✓',
-            'message_fail': '¡PERSONAJE {name} MUERTO O DESCONECTADO! ⚠',
+            'message_fail': '¡PERSONAJE {name} MUERTO! ⚠',
             'threshold': 0.99,
             'priority': 2,
             'alert_on_match': True,
             'use_color': True
+        },
+        'is_online_in_group': {
+            'file': 'alive_group_pattern.png',
+            'sound': 'alarm.mp3',
+            'message_ok': '¡Todos conectados! ✓',
+            'message_fail': '¡{count_matches} DESCONECTADO(S) EN GRUPO {name}! ⚠',
+            'threshold': 0.8,
+            'priority': 2,
+            'use_color': False,
+            'count_matches': True,      # ← NUEVO: activar conteo múltiple
+            'expected_count': 3         # ← NUEVO: esperamos N conectados
         }
     }
     
@@ -98,10 +109,10 @@ class PatternRegistry:
                     'threshold': config.get('threshold', 0.7),
                     'priority': config.get('priority', 999),
                     'alert_on_match': config.get('alert_on_match', False),
-                    'use_color': config.get('use_color', False)
+                    'use_color': config.get('use_color', False),
+                    'count_matches': config.get('count_matches', False),
+                    'expected_count': config.get('expected_count', None)
                 }
-                
-                logging.info(f"✓ Patrón '{pattern_type}' cargado correctamente")
                 
             except Exception as e:
                 logging.error(f"✗ Error cargando patrón '{pattern_type}': {str(e)}")

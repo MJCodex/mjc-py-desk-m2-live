@@ -1,5 +1,4 @@
 from typing import List
-import logging
 
 class TargetCharacter:
     """
@@ -38,8 +37,6 @@ class TargetCharacter:
         
         # Validar que el área sea válida
         self._validate_area()
-        
-        logging.info(f"Personaje creado: {self.name} con patrones {self.pattern_types}")
     
     def _validate_area(self):
         """Valida que las coordenadas del área sean correctas"""
@@ -53,13 +50,11 @@ class TargetCharacter:
         """Agrega un nuevo patrón al personaje si no existe"""
         if pattern_type not in self.pattern_types:
             self.pattern_types.append(pattern_type)
-            logging.info(f"Patrón '{pattern_type}' agregado a {self.name}")
     
     def remove_pattern(self, pattern_type: str):
         """Elimina un patrón del personaje"""
         if pattern_type in self.pattern_types:
             self.pattern_types.remove(pattern_type)
-            logging.info(f"Patrón '{pattern_type}' eliminado de {self.name}")
     
     def has_pattern(self, pattern_type: str) -> bool:
         """Verifica si el personaje tiene un patrón específico"""
