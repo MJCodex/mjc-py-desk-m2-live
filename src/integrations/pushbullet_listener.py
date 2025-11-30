@@ -4,9 +4,9 @@ import json
 import os
 import time
 import requests
-from src.global_console import GlobalConsole
-from src.screenshot_manager import ScreenshotManager
-from src.constants import command_actions
+from src.core.global_console import GlobalConsole
+from src.core.screenshot_manager import ScreenshotManager
+from src.core.constants import command_actions
 
 class PushbulletListener:
     def __init__(self):

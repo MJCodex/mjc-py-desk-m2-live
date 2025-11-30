@@ -1,9 +1,9 @@
 from pathlib import Path
 import webview
 import sys
-from src.web_api import WebApi
+from src.integrations.web_api import WebApi
 from src.app_ui import AppUI
-from src.global_console import GlobalConsole
+from src.core.global_console import GlobalConsole
 
 def web_refresh_targets_view():
     if webview.windows:

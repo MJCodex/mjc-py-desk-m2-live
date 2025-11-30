@@ -37,7 +37,7 @@ class PatternRegistry:
             'file': 'death_group_pattern.png',
             'sound': 'alarm.mp3',
             'message_ok': '¡Personaje ok! ✓',
-            'message_fail': '¡PERSONAJE {name} MUERTO! ⚠',
+            'message_fail': '¡PERSONAJE MUERTO EN GRUPO {name}! ⚠',
             'threshold': 0.99,
             'priority': 2,
             'alert_on_match': True,

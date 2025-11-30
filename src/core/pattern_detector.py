@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import Dict, Any, List
-from src.pattern_registry import PatternRegistry
-from src.status_detector_utilities import StatusDetectorUtilities
-from src.target_character import TargetCharacter
+from src.core.pattern_registry import PatternRegistry
+from src.core.status_detector_utilities import StatusDetectorUtilities
+from src.core.target_character import TargetCharacter
 
 class PatternDetector:
     """

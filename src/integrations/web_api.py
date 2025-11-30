@@ -1,4 +1,4 @@
-from src.global_console import GlobalConsole
+from src.core.global_console import GlobalConsole
 from src.app_ui import AppUI
 import webview
 

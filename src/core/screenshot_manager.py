@@ -3,7 +3,7 @@ from typing import Optional, Tuple
 import tempfile
 from datetime import datetime
 import pyautogui
-from src.pushbullet_base import PushbulletBase
+from src.integrations.pushbullet_base import PushbulletBase
 
 class ScreenshotManager(PushbulletBase):
     def __init__(self):

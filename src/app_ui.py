@@ -4,16 +4,15 @@ from PIL import Image
 from typing import List
 import base64
 from io import BytesIO
-
-from src.pattern_registry import PatternRegistry
-from src.pattern_detector import PatternDetector
-from src.status_detector_utilities import StatusDetectorUtilities
-from src.alert_manager import AlertManager
-from src.global_console import GlobalConsole
-from src.pushbullet_listener import PushbulletListener
-from src.target_character import TargetCharacter
-from src.sound_manager import SoundManager
-from src.screen_capture import ScreenCapture
+from src.core.pattern_registry import PatternRegistry
+from src.core.pattern_detector import PatternDetector
+from src.core.status_detector_utilities import StatusDetectorUtilities
+from src.integrations.alert_manager import AlertManager
+from src.core.global_console import GlobalConsole
+from src.integrations.pushbullet_listener import PushbulletListener
+from src.core.target_character import TargetCharacter
+from src.core.sound_manager import SoundManager
+from src.core.screen_capture import ScreenCapture
 
 class AppUI:
     def __init__(self, root, refresh_targets_view_fn=None):

@@ -1,5 +1,5 @@
 import os
-from src.global_console import GlobalConsole
+from src.core.global_console import GlobalConsole
 from pushbullet import Pushbullet
 
 class PushbulletBase:

@@ -1,6 +1,6 @@
 import time
-from src.global_console import GlobalConsole
-from src.pushbullet_base import PushbulletBase
+from src.core.global_console import GlobalConsole
+from src.integrations.pushbullet_base import PushbulletBase
 
 class AlertManager(PushbulletBase):
     def __init__(self):
