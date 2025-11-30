@@ -172,7 +172,8 @@ function formatPatternName(patternType) {
         'is_online': 'En línea',
         'has_buff': 'Con buff',
         'in_combat': 'En combate',
-        'is_alive_in_group': 'Vivo en grupo'
+        'is_alive_in_group': 'Grupo vivo',
+        'is_online_in_group': 'Grupo en linea'
     };
     return names[patternType] || patternType;
 }

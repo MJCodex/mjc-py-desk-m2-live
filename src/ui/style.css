@@ -126,7 +126,6 @@ button:hover {
 
 .target-item {
     display: flex;
-    flex-wrap: wrap;
     gap: 10px;
     align-items: center;
     justify-content: space-between;
@@ -206,6 +205,8 @@ button:hover {
     display: flex;
     flex-direction: row;
     gap: 4px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .target-options input[type="radio"]:hover,
