@@ -17,4 +17,4 @@ run:
 	$(PYTHON) main.py
 
 buildexe:
-	pyinstaller --onefile --windowed --add-data "src/ui;src/ui" --add-data "store;store" main.py
+	pyinstaller --onefile --windowed --add-data "src/ui;src/ui" --add-data "src/store;src/store" main.py
