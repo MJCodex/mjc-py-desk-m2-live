@@ -66,7 +66,7 @@ class PushbulletListener:
 
     def _create_websocket(self):
         """Crea y configura una nueva instancia de WebSocket."""
-        websocket.enableTrace(True)
+        websocket.enableTrace(False)
         
         def on_message(ws, message):
             try:
