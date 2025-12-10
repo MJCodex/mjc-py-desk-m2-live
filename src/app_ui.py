@@ -93,7 +93,8 @@ class AppUI:
         if 0 <= index < len(self.target_characters):
             deleted = self.target_characters.pop(index)
             GlobalConsole.log(f"✓ Personaje eliminado: {deleted.name}")
-            self.refresh_targets_view_fn()
+            if self.refresh_targets_view_fn:
+                self.refresh_targets_view_fn()
         else:
             GlobalConsole.log(f"⚠ Índice inválido: {index}")
 

@@ -58,12 +58,12 @@ function createTargetOptions(target, index) {
     const container = document.createElement('div');
     container.className = 'target-options';
 
-    const radiosContainer = document.createElement('div');
-    radiosContainer.className = 'target-radios';
+    // Input para nombre (primera línea)
+    const nameInputWrapper = document.createElement('div');
+    nameInputWrapper.className = 'target-name-wrapper';
 
-    // Input para nombre (opcional)
     const nameInput = document.createElement('input');
-    nameInput.className = 'target-name-input';
+    nameInput.className = 'target-name-input full-width';
     nameInput.type = 'text';
     nameInput.name = `character-name-${index}`;
     nameInput.value = target.name || '';
@@ -71,37 +71,72 @@ function createTargetOptions(target, index) {
     nameInput.addEventListener('blur', () => {
         onTargetNameChange(index, nameInput.value);
     });
-    container.appendChild(nameInput);
+    nameInputWrapper.appendChild(nameInput);
+    container.appendChild(nameInputWrapper);
 
-    const currentPattern = target.pattern_types[0] || 'is_alive';
+    // Checkboxes para patrones en una línea con wrap
+    const patternsContainer = document.createElement('div');
+    patternsContainer.className = 'target-patterns';
 
-    // Renderizar radio buttons dinámicamente
     availablePatterns.forEach(patternType => {
+        const patternItemWrapper = document.createElement('div');
+        patternItemWrapper.className = 'pattern-item-wrapper';
+
+        // Label con checkbox
         const label = document.createElement('label');
-        const radio = document.createElement('input');
-        radio.type = 'radio';
-        radio.name = `pattern-type-${index}`;
-        radio.value = patternType;
-        radio.checked = currentPattern === patternType;
-        radio.addEventListener('change', () => {
-            onPatternTypeChange(index, patternType);
+        label.className = 'pattern-label';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.name = `pattern-${index}-${patternType}`;
+        checkbox.value = patternType;
+        checkbox.checked = target.pattern_types.includes(patternType);
+        checkbox.addEventListener('change', () => {
+            onPatternToggle(index, patternType, checkbox.checked);
         });
-        
-        label.appendChild(radio);
-        // Formatear nombre del patrón (is_alive -> "Si vivo")
+
+        label.appendChild(checkbox);
         label.appendChild(document.createTextNode(formatPatternName(patternType)));
-        
-        radiosContainer.appendChild(label);
+        patternItemWrapper.appendChild(label);
+
+        // Si el patrón está activo y es de grupo, mostrar input expected_count al lado
+        if (checkbox.checked && patternType.includes('group')) {
+            const expectedCountInput = document.createElement('input');
+            expectedCountInput.type = 'number';
+            expectedCountInput.className = 'expected-count-input-inline';
+            expectedCountInput.min = '0';
+            expectedCountInput.value = target.patterns_config?.[patternType]?.expected_count || '';
+            expectedCountInput.placeholder = 'ej: 3';
+            expectedCountInput.addEventListener('blur', () => {
+                const value = expectedCountInput.value ? parseInt(expectedCountInput.value) : null;
+                onExpectedCountChange(index, patternType, value);
+            });
+            patternItemWrapper.appendChild(expectedCountInput);
+        }
+
+        patternsContainer.appendChild(patternItemWrapper);
     });
 
-    container.appendChild(radiosContainer);
-
+    container.appendChild(patternsContainer);
     return container;
 }
 
-async function onPatternTypeChange(index, newType) {
+async function onPatternToggle(index, patternType, isChecked) {
     if (window.pywebview) {
-        await window.pywebview.api.update_target_pattern(index, newType);
+        if (isChecked) {
+            await window.pywebview.api.add_pattern_to_character(index, patternType, {});
+        } else {
+            await window.pywebview.api.remove_pattern_from_character(index, patternType);
+        }
+        appendLog(`Patrón "${formatPatternName(patternType)}" ${isChecked ? 'agregado' : 'eliminado'}.`);
+        getTargets();
+    }
+}
+
+async function onExpectedCountChange(index, patternType, value) {
+    if (window.pywebview) {
+        await window.pywebview.api.update_pattern_config(index, patternType, 'expected_count', value);
+        appendLog(`expected_count de "${formatPatternName(patternType)}" actualizado a ${value}`);
     }
 }
 

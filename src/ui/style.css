@@ -200,13 +200,84 @@ button:hover {
     transform: scale(0.5);
 }
 
-.target-radios {
-    font-size: 1.2rem;
+.target-name-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.target-name-input {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px 12px;
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-soft);
+    background-color: var(--color-bg-dark);
+    color: var(--color-text);
+    font-size: 1.1rem;
+    transition: border-color var(--transition-fast);
+}
+
+.target-name-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 8px rgba(243, 49, 149, 0.3);
+}
+
+.target-patterns {
     display: flex;
     flex-direction: row;
-    gap: 4px;
     flex-wrap: wrap;
+    gap: 4px;
     justify-content: center;
+    align-items: center;
+}
+
+.pattern-item-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: var(--radius-soft);
+    background-color: var(--color-bg-accent);
+    transition: background-color var(--transition-fast);
+}
+
+.pattern-item-wrapper:hover {
+    opacity: 0.8;
+}
+
+.pattern-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.pattern-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--color-primary);
+}
+
+.expected-count-input-inline {
+    width: 55px;
+    padding: 4px 6px;
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-soft);
+    background-color: var(--color-bg-dark);
+    color: var(--color-text);
+    font-size: 1rem;
+    transition: border-color var(--transition-fast);
+}
+
+.expected-count-input-inline:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 8px rgba(243, 49, 149, 0.3);
 }
 
 .target-options input[type="radio"]:hover,
@@ -301,7 +372,6 @@ input[type="text"],
 input[type="email"],
 input[type="password"],
 input[type="number"] {
-    width: 100%;
     padding: 8px 12px;
     border: 1px solid var(--color-bg-accent);
     border-radius: var(--radius-round);
@@ -312,6 +382,10 @@ input[type="number"] {
     transition: border-color var(--transition-fast), 
                 box-shadow var(--transition-fast), 
                 background-color var(--transition-fast);
+}
+
+.full-width {
+    width: 100%;
 }
 
 input::placeholder {

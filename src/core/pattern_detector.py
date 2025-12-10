@@ -68,10 +68,14 @@ class PatternDetector:
     ) -> Dict[str, Any]:
 
         pattern_config = self.pattern_registry.get_pattern(pattern_type)
+        
+        # Obtener configuración personalizada del character (si existe)
+        character_pattern_config = character.get_pattern_config(pattern_type)
 
         # Elegir si contamos coincidencias
         count_matches = pattern_config.get("count_matches", False)
-        expected_count = pattern_config.get("expected_count", None)
+        # Prioridad: config del character > config global
+        expected_count = character_pattern_config.get("expected_count") or pattern_config.get("expected_count", None)
 
         # Ejecutar detección usando la nueva API
         detection_result = self.utilities.find_partial_pattern(

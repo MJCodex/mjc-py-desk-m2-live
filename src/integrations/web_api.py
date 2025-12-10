@@ -21,27 +21,48 @@ class WebApi:
                 'end_y': area.end_y,
                 'img_b64': img_b64,
                 'pattern_types': area.pattern_types,
+                'patterns_config': area.patterns_config,
                 'name': area.name
             })
         return result
-
-    def update_target_pattern(self, index, new_pattern):
+    
+    def add_pattern_to_character(self, index, pattern_type, config=None):
+        """Agrega un patrón a un character con configuración opcional"""
         try:
-            self.app_ui.target_characters[index].pattern_types = [new_pattern]
-            GlobalConsole.log(f"Patrón del objetivo {index} actualizado a {new_pattern}")
+            if not self.app_ui.add_pattern_to_character(index, pattern_type):
+                return False
+            
+            # Aplicar configuración personalizada si se proporciona
+            if config:
+                character = self.app_ui.target_characters[index]
+                character.set_pattern_config(pattern_type, config)
+                GlobalConsole.log(f"Configuración de '{pattern_type}' actualizada: {config}")
+            
             return True
-        except Exception:
+        except Exception as e:
+            GlobalConsole.log(f"Error al agregar patrón: {e}")
             return False
-
-    def toggle_target_pattern(self, index, pattern_type, add=True):
+    
+    def remove_pattern_from_character(self, index, pattern_type):
+        """Elimina un patrón de un character"""
+        try:
+            return self.app_ui.remove_pattern_from_character(index, pattern_type)
+        except Exception as e:
+            GlobalConsole.log(f"Error al eliminar patrón: {e}")
+            return False
+    
+    def update_pattern_config(self, index, pattern_type, config_key, config_value):
+        """Actualiza un valor de configuración de un patrón específico"""
         try:
             character = self.app_ui.target_characters[index]
-            if add:
-                character.add_pattern(pattern_type)
-            else:
-                character.remove_pattern(pattern_type)
+            character.update_pattern_config_value(pattern_type, config_key, config_value)
+            GlobalConsole.log(
+                f"Patrón '{pattern_type}' del objetivo {index}: "
+                f"{config_key} = {config_value}"
+            )
             return True
-        except Exception:
+        except Exception as e:
+            GlobalConsole.log(f"Error al actualizar configuración del patrón: {e}")
             return False
 
     def update_target_name(self, index, new_name):
