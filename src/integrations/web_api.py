@@ -56,10 +56,6 @@ class WebApi:
         try:
             character = self.app_ui.target_characters[index]
             character.update_pattern_config_value(pattern_type, config_key, config_value)
-            GlobalConsole.log(
-                f"Patrón '{pattern_type}' del objetivo {index}: "
-                f"{config_key} = {config_value}"
-            )
             return True
         except Exception as e:
             GlobalConsole.log(f"Error al actualizar configuración del patrón: {e}")

@@ -128,7 +128,6 @@ async function onPatternToggle(index, patternType, isChecked) {
         } else {
             await window.pywebview.api.remove_pattern_from_character(index, patternType);
         }
-        appendLog(`Patrón "${formatPatternName(patternType)}" ${isChecked ? 'agregado' : 'eliminado'}.`);
         getTargets();
     }
 }
@@ -136,7 +135,7 @@ async function onPatternToggle(index, patternType, isChecked) {
 async function onExpectedCountChange(index, patternType, value) {
     if (window.pywebview) {
         await window.pywebview.api.update_pattern_config(index, patternType, 'expected_count', value);
-        appendLog(`expected_count de "${formatPatternName(patternType)}" actualizado a ${value}`);
+        appendLog(`Cuenta de "${formatPatternName(patternType)}" actualizada a ${value}`);
     }
 }
 
@@ -167,7 +166,6 @@ async function addTarget() {
     if (window.pywebview) {
         const result = await window.pywebview.api.add_target();
         if (result) {
-            appendLog('Área agregada.');
             getTargets();
         }
     }

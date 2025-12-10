@@ -256,13 +256,6 @@ button:hover {
     margin: 0;
 }
 
-.pattern-label input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
-    accent-color: var(--color-primary);
-}
-
 .expected-count-input-inline {
     width: 55px;
     padding: 4px 6px;
@@ -304,6 +297,49 @@ button:hover {
 .target-options input[type="radio"]:checked::after {
     opacity: 1;
     transform: scale(1);
+}
+
+/* Estilos para checkboxes en pattern-label */
+.pattern-label input[type="checkbox"] {
+    appearance: none;
+    outline: none;
+    width: 1.4rem;
+    height: 1.4rem;
+    aspect-ratio: 1;
+    background: transparent;
+    border: 1px solid var(--color-primary);
+    border-radius: 4px;
+    display: grid;
+    place-content: center;
+    cursor: pointer;
+    transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.pattern-label input[type="checkbox"]::after {
+    content: "✓";
+    color: var(--color-bg-dark);
+    font-size: 1.1rem;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.pattern-label input[type="checkbox"]:hover {
+    border-color: var(--color-accent);
+}
+
+.pattern-label input[type="checkbox"]:focus-visible {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 8px rgba(243, 49, 149, 0.3);
+}
+
+.pattern-label input[type="checkbox"]:checked {
+    border-color: var(--color-highlight);
+    background-color: var(--color-highlight);
+}
+
+.pattern-label input[type="checkbox"]:checked::after {
+    opacity: 1;
 }
 
 ::-webkit-scrollbar {
@@ -382,6 +418,17 @@ input[type="number"] {
     transition: border-color var(--transition-fast), 
                 box-shadow var(--transition-fast), 
                 background-color var(--transition-fast);
+}
+
+/* Ocultar spinners en inputs tipo número */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
 }
 
 .full-width {
